@@ -56,9 +56,9 @@ category: 技术
 
    ![快捷进入C++配置](img7.png)
 
-![配置页面面板](img8.png)
+    ![配置页面面板](img8.png)
 
-配置两个选项：
+    配置两个选项：
 
 - 编译器路径
 
@@ -66,36 +66,41 @@ category: 技术
 
   ![编译器路径](img9.png)
 
-![IntelliSense 模式](img10.png)
+    ![IntelliSense 模式](img10.png)
 
-配置完成后，此时在侧边栏可以发现多了一个`.vscode`文件夹，并且里面有一个`c_cpp_properties.json`文件，内容如下，说明上述配置成功。
+    配置完成后，此时在侧边栏可以发现多了一个`.vscode`文件夹，并且里面有一个`c_cpp_properties.json`文件，内容如下，说明上述配置成功。
 
-```json
-{
-    "configurations": [
-        {
-            "name": "Win32",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ],
-            "compilerPath": "D:/Program Files (x86)/mingw-w64/mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0/mingw64/bin/g++.exe",
-            "cStandard": "gnu17",
-            "cppStandard": "gnu++14",
-            "intelliSenseMode": "gcc-x64"
-        }
-    ],
-    "version": 4
-}
-```
+    <details>
+    <summary><font color='blue'>点我展开 c_cpp_properties.json</font></summary>
+
+    ```json
+    {
+        "configurations": [
+            {
+                "name": "Win32",
+                "includePath": [
+                    "${workspaceFolder}/**"
+                ],
+                "defines": [
+                    "_DEBUG",
+                    "UNICODE",
+                    "_UNICODE"
+                ],
+                "compilerPath": "D:/Program Files (x86)/mingw-w64/mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0/mingw64/bin/g++.exe",
+                "cStandard": "gnu17",
+                "cppStandard": "gnu++14",
+                "intelliSenseMode": "gcc-x64"
+            }
+        ],
+        "version": 4
+    }
+    ```
+
+    </details>
 
 4. 现在可以通过 Ctrl + < + ` 快捷键打开内置终端并进行编译运行了。
 
-![终端运行程序](img11.png)
+    ![终端运行程序](img11.png)
 
 5. 配置构建任务
 
@@ -107,35 +112,40 @@ category: 技术
 
    再选择`C/C++: g++.exe build active file`，会出现一个`tasks.json`配置文件：
 
-   ```json
-   {
-   	"version": "2.0.0",
-   	"tasks": [
-   		{
-   			"type": "cppbuild",
-   			"label": "C/C++: g++.exe build active file",
-   			"command": "D:/Program Files (x86)/mingw-w64/mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0/mingw64/bin/g++.exe",
-   			"args": [
-   				"-g",
-   				"${file}",
-   				"-o",
-   				"${fileDirname}\\${fileBasenameNoExtension}.exe"
-   			],
-   			"options": {
-   				"cwd": "D:/Program Files (x86)/mingw-w64/mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0/mingw64/bin"
-   			},
-   			"problemMatcher": [
-   				"$gcc"
-   			],
-   			"group": {
-   				"kind": "build",
-   				"isDefault": true
-   			},
-   			"detail": "compiler: \"D:/Program Files (x86)/mingw-w64/mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0/mingw64/bin/g++.exe\""
-   		}
-   	]
-   }
-   ```
+    <details>
+    <summary><font color='blue'>点我展开 tasks.json</font></summary>
+
+    ```json
+    {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "type": "cppbuild",
+                "label": "C/C++: g++.exe build active file",
+                "command": "D:/Program Files (x86)/mingw-w64/mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0/mingw64/bin/g++.exe",
+                "args": [
+                    "-g",
+                    "${file}",
+                    "-o",
+                    "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                ],
+                "options": {
+                    "cwd": "D:/Program Files (x86)/mingw-w64/mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0/mingw64/bin"
+                },
+                "problemMatcher": [
+                    "$gcc"
+                ],
+                "group": {
+                    "kind": "build",
+                    "isDefault": true
+                },
+                "detail": "compiler: \"D:/Program Files (x86)/mingw-w64/mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0/mingw64/bin/g++.exe\""
+            }
+        ]
+    }
+    ```
+
+    </details>
 
 6. 配置调试设置
 
@@ -152,6 +162,9 @@ category: 技术
    ![](img15.png)
 
    会在`.vscode`文件夹里面生成一个`launch.json`文件
+
+    <details>
+    <summary><font color='blue'>点我展开 launch.json</font></summary>
 
     ```json
     {
@@ -185,11 +198,13 @@ category: 技术
     }
     ```
 
-然后，可以点击右下角`添加配置...`按钮，添加相应配置
+    </details>
 
-![launch.json配置](img17.png)
+    然后，可以点击右下角`添加配置...`按钮，添加相应配置
 
-或者复制别人的配置进来。
+    ![launch.json配置](img17.png)
+
+    或者复制别人的配置进来。
 
 
 

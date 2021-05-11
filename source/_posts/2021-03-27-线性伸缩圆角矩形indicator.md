@@ -19,6 +19,9 @@ UI显示是ViewPager + Indicator，那么，Indicator和ViewPager的联动，就
 效果如下
 ![最终效果](./scale-linear-rounded-rectangle-navigator.gif)
 
+<details>
+<summary><font color='blue'>点我展开代码</font></summary>
+
 ```java
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -377,3 +380,5 @@ public class ScaleLinearRoundedRectangleNavigator extends View implements IPager
     }
 }
 ```
+
+</details>

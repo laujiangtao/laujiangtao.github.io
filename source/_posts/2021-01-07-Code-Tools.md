@@ -9,6 +9,10 @@ category: 技术
 ---
 
 ### 扫描文件
+
+<details>
+<summary>点我展开</summary>
+
 ```java
 import java.io.File;
 import java.util.HashSet;
@@ -74,6 +78,12 @@ public final class ScanFileHelper {
 }
 ```
 
+</details>
+
+### 读取assets文件
+
+<details>
+<summary>点我展开</summary>
 ```kotlin
 /**
  * 读取assets📁下json📃
@@ -100,8 +110,12 @@ fun getJsonStringFromAssetsFile(context: Context, fileName: String?): String {
     return stringBuilder.toString()
 }
 ```
+</details>
 
-### getSignature
+
+### 获取应用签名
+<details>
+<summary>点我展开</summary>
 ```java
 /**
  * 获取应用签名
@@ -130,8 +144,13 @@ public String getSignature(Context context, String pkgname) {
     return null;
 }
 ```
+</details>
+
 
 ### SPHelper.java
+<details>
+<summary>点我展开</summary>
+
 ```java
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -206,7 +225,13 @@ public class SPHelper {
 }
 ```
 
+</details>
+
+
 ### Logger.java
+<details>
+<summary>点我展开</summary>
+
 ```java
 import android.util.Log;
 
@@ -250,7 +275,13 @@ public class Logger {
 }
 ```
 
+</details>
+
+
 ### 键盘覆盖WebView输入框
+<details>
+<summary>点我展开</summary>
+
 ```java
 import android.app.Activity;
 import android.graphics.Rect;
@@ -325,7 +356,13 @@ public class KeyBoardListener {
 }
 ```
 
+</details>
+
+
 ### 根据经纬度计算两点间的距离
+<details>
+<summary>点我展开</summary>
+
 ```java
 /**
  * Created by jiangtao on 2017/4/19 15:01
@@ -347,7 +384,12 @@ public static double getDistance(double long1, double lat1, double long2, double
 }
 ```
 
+</details>
+
 ### Base64Utils.java
+<details>
+<summary>点我展开</summary>
+
 ```java
 
 import java.nio.charset.StandardCharsets;
@@ -385,7 +427,12 @@ public class Base64Utils {
 
 ```
 
+</details>
+
 ### File2Base64.java
+<details>
+<summary>点我展开</summary>
+
 ```java
 import android.util.Base64;
 
@@ -431,7 +478,12 @@ public class File2Base64 {
 }
 ```
 
+</details>
+
 ### Apk下载
+<details>
+<summary>点我展开</summary>
+
 ```java
 import android.app.NotificationManager;
 import android.content.Context;
@@ -623,7 +675,12 @@ public final class Download extends AsyncTask<String, Integer, String> {
 }
 ```
 
+</details>
+
 ### 根据日期和经纬度，计算日出日落时间
+<details>
+<summary>点我展开</summary>
+
 ```c++
 #include<iostream>
 #include<math.h>
@@ -1183,7 +1240,12 @@ public class SunriseAndSunsetTime {
 }
 ```
 
+</details>
+
 ### android 5 新 UI
+<details>
+<summary>点我展开</summary>
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -1265,7 +1327,12 @@ public class SunriseAndSunsetTime {
 </android.support.design.widget.CoordinatorLayout>
 ```
 
+</details>
+
 ### MD5
+<details>
+<summary>点我展开</summary>
+
 ```java
 import java.io.File;
 import java.io.FileInputStream;
@@ -1330,7 +1397,12 @@ public class Md5CaculateUtil {
 }
 ```
 
+</details>
+
 ### 文件重命名
+<details>
+<summary>点我展开</summary>
+
 ```java
 import java.io.File;
 
@@ -1382,7 +1454,12 @@ public class ChangeFileName {
 }
 ```
 
+</details>
+
 ### okhttp3上传图片
+<details>
+<summary>点我展开</summary>
+
 ```java
 import android.content.Context;
 import android.os.Bundle;
@@ -1648,7 +1725,12 @@ public class UpLoadImgThread {
 }
 ```
 
+</details>
+
 ### 权限申请
+<details>
+<summary>点我展开</summary>
+
 ```java
 import android.app.Activity;
 import android.content.pm.PackageManager;
@@ -1705,6 +1787,7 @@ public class PermissionUtils {
     }
 }
 ```
+
 > implementation 'com.afollestad.assent:core:3.0.0-RC4'
 
 ```kotlin
@@ -1737,7 +1820,12 @@ fun Activity.checkPermissions(
 }
 ```
 
+</details>
+
 ### content映射到文件路径
+<details>
+<summary>点我展开</summary>
+
 ```java
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
@@ -1885,8 +1973,13 @@ public class FileUriUtils {
 }
 ```
 
+</details>
+
 
 ### 圆角图片
+<details>
+<summary>点我展开</summary>
+
 ```java
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -2140,7 +2233,13 @@ public class CircleImageView extends ImageView {
 }
 ```
 
+</details>
+
+
 ### 解决ScrollView滑动粘滞
+<details>
+<summary>点我展开</summary>
+
 ```java
 import android.content.Context;
 import android.util.AttributeSet;
@@ -2190,3 +2289,5 @@ public class SlideScrollview extends ScrollView {
     }
 }
 ```
+
+</details>
