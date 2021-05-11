@@ -3,9 +3,76 @@ title: Code Tools
 pathsuffix: code-tools
 comments: false
 date: 2021-01-07 15:16:45
+updated: 2021-05-11
 tags: Code
 category: 技术
 ---
+
+### 扫描文件
+```java
+import java.io.File;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
+
+/**
+ * @author Kavan
+ */
+public final class ScanFileHelper {
+    private static ScanFileHelper scanFileHelper;
+
+    public static ScanFileHelper getInstance() {
+        if (scanFileHelper == null) {
+            scanFileHelper = new ScanFileHelper();
+        }
+        return scanFileHelper;
+    }
+
+    private ScanFileHelper() {
+    }
+
+    private OnFileScanListener fileScanListener;
+
+    public void setOnFileScanListener(OnFileScanListener fileScanListener) {
+        this.fileScanListener = fileScanListener;
+    }
+
+    interface OnFileScanListener {
+        void onFileScan(String path);
+    }
+
+    public void traverseFolderBFS(File node) {
+        Set<File> visited = new HashSet<>();
+        Queue<File> q = new LinkedList<>();
+        q.offer(node);
+        while (!q.isEmpty()) {
+            File currNode = q.poll();
+            if (visited.contains(currNode) || null == currNode) {
+                continue;
+            }
+            if (fileScanListener != null) {
+                fileScanListener.onFileScan(currNode.getAbsolutePath());
+            } else {
+                throw new IllegalArgumentException("FileScanListener should be not null");
+            }
+            visited.add(currNode);
+            File[] files = currNode.listFiles();
+            if (null == files) {
+                continue;
+            }
+            for (File file : files) {
+                q.offer(file);
+            }
+        }
+    }
+
+    public void traverseFolderBFS(File node, OnFileScanListener l) {
+        setOnFileScanListener(l);
+        traverseFolderBFS(node);
+    }
+}
+```
 
 ```kotlin
 /**
@@ -278,6 +345,44 @@ public static double getDistance(double long1, double lat1, double long2, double
     d = 2 * R * Math.asin(Math.sqrt(sa2 * sa2 + Math.cos(lat1) * Math.cos(lat2) * sb2 * sb2));
     return d;
 }
+```
+
+### Base64Utils.java
+```java
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+/**
+ * @version Base64Utils, v0.1 2020/7/7 10:28
+ */
+public class Base64Utils {
+
+    final static Base64.Encoder encoder = Base64.getEncoder();
+    final static Base64.Decoder decoder = Base64.getDecoder();
+
+    /**
+     * 给字符串加密
+     *
+     * @param text
+     * @return
+     */
+    public static String encode(String text) {
+        byte[] textByte = text.getBytes(StandardCharsets.UTF_8);
+        return encoder.encodeToString(textByte);
+    }
+
+    /**
+     * 将加密后的字符串进行解密
+     *
+     * @param encodedText
+     * @return
+     */
+    public static String decode(String encodedText) {
+        return new String(decoder.decode(encodedText), StandardCharsets.UTF_8);
+    }
+}
+
 ```
 
 ### File2Base64.java
@@ -1597,6 +1702,37 @@ public class PermissionUtils {
             }
         }
         return isGranted;
+    }
+}
+```
+> implementation 'com.afollestad.assent:core:3.0.0-RC4'
+
+```kotlin
+import android.app.Activity
+import com.afollestad.assent.Permission
+import com.afollestad.assent.askForPermissions
+import com.afollestad.assent.isAllGranted
+import com.afollestad.assent.runWithPermissions
+
+typealias PermissionListener = () -> Unit
+
+fun Activity.checkPermissions(
+    vararg permissions: Permission,
+    permissionListener: PermissionListener? = null
+) {
+
+    if (isAllGranted(*permissions)) {
+        runWithPermissions(*permissions) {
+            permissionListener?.invoke()
+        }
+    } else {
+        askForPermissions(*permissions) { result ->
+            if (result.isAllGranted()) {
+                permissionListener?.invoke()
+            } else {
+                checkPermissions(*permissions, permissionListener = permissionListener)
+            }
+        }
     }
 }
 ```
