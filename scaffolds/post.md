@@ -6,5 +6,4 @@ updated: {{ updated }}
 tags:
 categories:
 comments: false
-categories:
 ---
