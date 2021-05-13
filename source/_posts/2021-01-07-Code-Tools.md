@@ -1731,91 +1731,54 @@ public class UpLoadImgThread {
 <details>
 <summary>点我展开</summary>
 
-```java
-import android.app.Activity;
-import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * @author jiangtao
- * @date 2017/9/17
- */
-
-public class PermissionUtils {
-
-    public static final int REQUEST_CODE = 10;
-
-    public static void applyPermission(Activity activity, String[] permissions) {
-
-        List<String> permissionList = new ArrayList<>();
-        for (String permission : permissions) {
-            if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
-                permissionList.add(permission);
-            }
-        }
-        String[] permissionArray = permissionList.toArray(new String[permissionList.size()]);
-        if (permissionArray.length > 0) {
-            ActivityCompat.requestPermissions(activity, permissionArray, REQUEST_CODE);
-        }
-    }
-
-    public static boolean hasPermission(Activity activity, String[] permissions) {
-
-        for (String permission : permissions) {
-            if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static boolean isGrantedAll(@NonNull int[] grantResults){
-        boolean isGranted = false;
-        for (int grantResult : grantResults) {
-            if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                isGranted = true;
-            } else {
-                isGranted = false;
-                break;
-            }
-        }
-        return isGranted;
-    }
-}
-```
-
-> implementation 'com.afollestad.assent:core:3.0.0-RC4'
-
 ```kotlin
 import android.app.Activity
-import com.afollestad.assent.Permission
-import com.afollestad.assent.askForPermissions
-import com.afollestad.assent.isAllGranted
-import com.afollestad.assent.runWithPermissions
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import java.util.*
 
-typealias PermissionListener = () -> Unit
-
-fun Activity.checkPermissions(
-    vararg permissions: Permission,
-    permissionListener: PermissionListener? = null
-) {
-
-    if (isAllGranted(*permissions)) {
-        runWithPermissions(*permissions) {
-            permissionListener?.invoke()
-        }
-    } else {
-        askForPermissions(*permissions) { result ->
-            if (result.isAllGranted()) {
-                permissionListener?.invoke()
-            } else {
-                checkPermissions(*permissions, permissionListener = permissionListener)
+/**
+ * @author kavan jiangtao on 2019/8/6
+ */
+object PermissionUtils {
+    const val REQUEST_CODE = 10
+    @JvmStatic
+    fun applyPermission(activity: Activity, permissions: Array<String>) {
+        val permissionList: MutableList<String> = ArrayList()
+        for (permission in permissions) {
+            if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
+                permissionList.add(permission)
             }
         }
+        val permissionArray = permissionList.toTypedArray()
+        if (permissionArray.isNotEmpty()) {
+            ActivityCompat.requestPermissions(activity, permissionArray, REQUEST_CODE)
+        }
+    }
+
+    @JvmStatic
+    fun hasPermission(activity: Activity, permissions: Array<String>): Boolean {
+        for (permission in permissions) {
+            if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false
+            }
+        }
+        return true
+    }
+
+    @JvmStatic
+    fun isGrantedAll(grantResults: IntArray): Boolean {
+        var isGranted = false
+        for (grantResult in grantResults) {
+            if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                isGranted = true
+            } else {
+                isGranted = false
+                break
+            }
+        }
+        return isGranted
     }
 }
 ```
