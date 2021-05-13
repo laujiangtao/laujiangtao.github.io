@@ -1783,6 +1783,38 @@ object PermissionUtils {
 }
 ```
 
+> implementation 'com.afollestad.assent:core:3.0.0-RC4'
+
+```kotlin
+import android.app.Activity
+import com.afollestad.assent.Permission
+import com.afollestad.assent.askForPermissions
+import com.afollestad.assent.isAllGranted
+import com.afollestad.assent.runWithPermissions
+
+typealias PermissionListener = () -> Unit
+
+fun Activity.checkPermissions(
+    vararg permissions: Permission,
+    permissionListener: PermissionListener? = null
+) {
+
+    if (isAllGranted(*permissions)) {
+        runWithPermissions(*permissions) {
+            permissionListener?.invoke()
+        }
+    } else {
+        askForPermissions(*permissions) { result ->
+            if (result.isAllGranted()) {
+                permissionListener?.invoke()
+            } else {
+                checkPermissions(*permissions, permissionListener = permissionListener)
+            }
+        }
+    }
+}
+```
+
 </details>
 
 ### content映射到文件路径
