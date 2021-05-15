@@ -5,6 +5,7 @@ comments: false
 date: 2021-01-28 20:39:37
 tags: C++
 category: 技术
+toc: true
 ---
 **Windows 安装 MinGW-w64**
 

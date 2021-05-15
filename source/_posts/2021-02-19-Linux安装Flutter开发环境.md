@@ -5,6 +5,7 @@ comments: false
 date: 2021-02-19 11:13:53
 tags: flutter
 category: 技术
+toc: true
 ---
 
 [转到下载页](https://flutter.dev/docs/development/tools/sdk/releases?tab=linux)

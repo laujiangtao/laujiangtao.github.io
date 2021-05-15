@@ -5,6 +5,7 @@ comments: false
 date: 2021-01-18 10:19:22
 tags: Kotlin
 category: 技术
+toc: true
 ---
 **在lambda表达式，只支持单抽象方法模型，即设计的接口里面只有一个抽象的方法，才符合lambda表达式的规则，多个回调方法不支持。**
 

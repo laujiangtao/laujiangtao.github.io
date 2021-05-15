@@ -5,6 +5,7 @@ comments: false
 date: 2021-01-18 09:32:33
 tags: flutter
 category: Question
+toc: true
 ---
 
 安装完flutter环境，执行`flutter doctor`命令，检查flutter开发工具链。

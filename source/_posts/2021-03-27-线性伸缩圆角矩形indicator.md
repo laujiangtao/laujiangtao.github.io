@@ -5,6 +5,7 @@ comments: false
 date: 2021-03-27 20:27:00
 tags: 自定义View
 category: 技术
+toc: true
 ---
 
 UI给了一个轮播图的交互

@@ -5,6 +5,7 @@ comments: false
 date: 2021-02-11 08:01:04
 tags: mysql
 category: 技术
+toc: true
 ---
 
 # (1) 基本命令

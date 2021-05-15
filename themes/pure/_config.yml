@@ -58,12 +58,12 @@ pagination:
 # Sidebar
 sidebar: right
 widgets:
-  - board  
-  - category
-  - tag
-  - tagcloud
-  - archive
-  - recent_posts
+  - board # 公告
+  - category # 分类
+  - tag # 标签
+  - tagcloud # 标签云
+  - archive # 归档
+  - recent_posts # 最近文章
 
 # display widgets at the bottom of index pages (pagination == 2)
 index_widgets:
@@ -76,12 +76,32 @@ archive_type: 'monthly'
 show_count: true
 
 # Fancybox
-fancybox: false
+fancybox: true
 
 # Search
 search:
   insight: true # you need to install `hexo-generator-json-content` before using Insight Search
   baidu: false # you need to disable other search engines to use Baidu search
+
+# 示例: 隐藏分类和标签的搜索
+jsonContent:
+  dateFormat: DD/MM/YYYY
+  posts:
+    title: true
+    date: true
+    path: true
+    text: true
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: false
+    tags: false
+    author: false
 
 # Donate
 donate:
@@ -166,7 +186,7 @@ pv:
         
 # wordcount
 postCount:
-  enable: false
+  enable: true
   wordcount: true  # 文章字数统计
   min2read: true  # 阅读时长预计 
 
