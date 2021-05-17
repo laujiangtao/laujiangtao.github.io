@@ -9,6 +9,96 @@ category: 技术
 toc: true
 ---
 
+### 将View保存为图片
+<details>
+<summary>点我展开</summary>
+
+```kotlin
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.net.Uri
+import android.util.DisplayMetrics
+import android.util.Log
+import android.view.View
+import android.view.WindowManager
+import java.io.File
+import java.io.FileOutputStream
+
+object ViewUtils {
+    private const val TAG = "ViewUtils"
+
+    /**
+     * 保存view为图片
+     *
+     * @param activity     Activity
+     * @param view         View
+     * @param savePathName 保存的文件路径及文件名
+     */
+    @Throws(Exception::class)
+    fun saveView(activity: Activity, view: View, savePathName: String) {
+
+        //计算设备分辨率
+        val manager: WindowManager = activity.windowManager
+        val outMetrics = DisplayMetrics()
+        manager.defaultDisplay.getMetrics(outMetrics)
+        val width: Int = outMetrics.widthPixels
+        val height: Int = outMetrics.heightPixels
+
+        // 整个View的大小 参数是左上角 和右下角的坐标
+        view.layout(0, 0, width, height)
+        val measuredWidth: Int = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+        val measuredHeight: Int = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST)
+
+        //测量，布局View
+        view.measure(measuredWidth, measuredHeight)
+        view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+        view.isDrawingCacheEnabled = true
+        view.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH
+        view.drawingCacheBackgroundColor = Color.WHITE
+
+        // 把一个View转换成图片
+        val cacheBmp: Bitmap = viewConversionBitmap(view)
+        val file = File(savePathName)
+        val fos = FileOutputStream(file)
+        cacheBmp.compress(Bitmap.CompressFormat.PNG, 90, fos)
+        fos.flush()
+        fos.close()
+        view.destroyDrawingCache()
+
+        //发送广播更新相册
+        val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+        val uri: Uri = Uri.fromFile(file)
+        intent.data = uri
+        activity.sendBroadcast(intent)
+    }
+
+
+    /**
+     * view转bitmap
+     *
+     * @param v View
+     * @return Bitmap
+     */
+    private fun viewConversionBitmap(v: View): Bitmap {
+        val w: Int = v.width
+        val h: Int = v.height
+        Log.e(TAG, "width: $w height: $h")
+        val bmp: Bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val c = Canvas(bmp)
+        c.drawColor(Color.WHITE)
+        /** 如果不设置canvas画布为白色，则生成透明  */
+        v.layout(0, 0, w, h)
+        v.draw(c)
+        return bmp
+    }
+}
+```
+
+</details>
+
 ### 扫描文件
 
 <details>
