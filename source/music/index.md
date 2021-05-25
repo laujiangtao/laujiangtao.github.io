@@ -7,10 +7,11 @@ comments: false
 sidebar: none
 ---
 
-<hr />
-<div>
+<!-- <div>
   <link rel="stylesheet" href="/dist/APlayer.min.css">
   <div id="aplayer"></div>
   <script type="text/javascript" src="/dist/APlayer.min.js"></script>
   <script type="text/javascript" src="/dist/music.js"></script>
-</div>
+</div> -->
+
+<iframe frameborder="no" border="0" width=100% height=100% src="//music.163.com/outchain/player?type=0&id=6770813839&auto=1"/>
