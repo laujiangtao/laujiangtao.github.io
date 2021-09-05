@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>【转载】配置方法数超过 64K 的应用 | Kavan</title>
+  <meta name="description" content="随着 Android 平台的持续成长，Android 应用的大小也在增加。当您的应用及其引用的库达到特定大小时，您会遇到构建错误，指明您的应用已达到 Android 应用构建架构的极限。早期版本的构建系统按如下方式报告这一错误： 12Conversion to Dalvik format failed:Unable to execute dex: method ID not in [0, 0xff">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【转载】配置方法数超过 64K 的应用">
+<meta property="og:url" content="https://laujiangtao.github.io/2020/12/25/configure-apps-with-more-than-64k-methods/index.html">
+<meta property="og:site_name" content="Hexo | Kavan">
+<meta property="og:description" content="随着 Android 平台的持续成长，Android 应用的大小也在增加。当您的应用及其引用的库达到特定大小时，您会遇到构建错误，指明您的应用已达到 Android 应用构建架构的极限。早期版本的构建系统按如下方式报告这一错误： 12Conversion to Dalvik format failed:Unable to execute dex: method ID not in [0, 0xff">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-12-25T08:26:03.000Z">
+<meta property="article:modified_time" content="2021-05-15T15:51:54.952Z">
+<meta property="article:author" content="Kavan">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://laujiangtao.github.io/2020/12/25/configure-apps-with-more-than-64k-methods/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo | Kavan" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/laujiangtao" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Kavan</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md"></h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">外链</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-music">
+          <a href="/music">
+            
+            <i class="icon icon-book-fill"></i>
+            
+            <span class="menu-title">音乐</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>无</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Question/">Question</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BA%92%E8%81%94%E7%BD%91%E5%8A%A8%E6%80%81/">互联网动态</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><span class="category-list-count">17</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E6%B4%BB/">生活</a><span class="category-list-count">3</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Code/" rel="tag">Code</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FFmpeg/" rel="tag">FFmpeg</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin/" rel="tag">Kotlin</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Terminal/" rel="tag">Terminal</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audio/" rel="tag">audio</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flutter/" rel="tag">flutter</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jekins/" rel="tag">jekins</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E5%AE%9A%E4%B9%89View/" rel="tag">自定义View</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E6%89%8B%E6%8B%8D/" rel="tag">随手拍</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Android/" style="font-size: 14px;">Android</a> <a href="/tags/C/" style="font-size: 13px;">C</a> <a href="/tags/C/" style="font-size: 13px;">C++</a> <a href="/tags/Code/" style="font-size: 13px;">Code</a> <a href="/tags/FFmpeg/" style="font-size: 13px;">FFmpeg</a> <a href="/tags/Java/" style="font-size: 13px;">Java</a> <a href="/tags/Kotlin/" style="font-size: 13px;">Kotlin</a> <a href="/tags/Terminal/" style="font-size: 13px;">Terminal</a> <a href="/tags/audio/" style="font-size: 13px;">audio</a> <a href="/tags/flutter/" style="font-size: 13.5px;">flutter</a> <a href="/tags/java/" style="font-size: 13px;">java</a> <a href="/tags/jekins/" style="font-size: 13.5px;">jekins</a> <a href="/tags/mysql/" style="font-size: 13px;">mysql</a> <a href="/tags/%E8%87%AA%E5%AE%9A%E4%B9%89View/" style="font-size: 13px;">自定义View</a> <a href="/tags/%E9%9A%8F%E6%89%8B%E6%8B%8D/" style="font-size: 13px;">随手拍</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled ">
+        
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2021/09/05/my-butter-knife/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/09/05/my-butter-knife/" class="title">仿butterknife注解</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-09-05T04:14:01.000Z" itemprop="datePublished">2021-09-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2021/05/26/c-language/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/05/26/c-language/" class="title">C语言</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-05-26T01:42:04.000Z" itemprop="datePublished">2021-05-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2021/05/19/android-auto-task/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/05/19/android-auto-task/" class="title">Android自动任务探索</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-05-19T08:15:08.000Z" itemprop="datePublished">2021-05-19</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2021/03/27/linear-telescopic-fillet-rectangle-indicator/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/03/27/linear-telescopic-fillet-rectangle-indicator/" class="title">线性伸缩圆角矩形indicator</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-03-27T12:27:00.000Z" itemprop="datePublished">2021-03-27</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2021/03/09/zentao-project-management-software-deployment/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/03/09/zentao-project-management-software-deployment/" class="title">禅道项目管理软件部署</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-03-09T15:01:55.000Z" itemprop="datePublished">2021-03-09</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E-64K-%E5%BC%95%E7%94%A8%E9%99%90%E5%88%B6"><span class="toc-number">1.</span> <span class="toc-text">关于 64K 引用限制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Android-5-0-%E4%B9%8B%E5%89%8D%E7%89%88%E6%9C%AC%E7%9A%84-Dalvik-%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E5%88%86%E5%8C%85%E6%94%AF%E6%8C%81"><span class="toc-number">1.1.</span> <span class="toc-text">Android 5.0 之前版本的 Dalvik 可执行文件分包支持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Android-5-0-%E5%8F%8A%E6%9B%B4%E9%AB%98%E7%89%88%E6%9C%AC%E7%9A%84-Dalvik-%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E5%88%86%E5%8C%85%E6%94%AF%E6%8C%81"><span class="toc-number">1.2.</span> <span class="toc-text">Android 5.0 及更高版本的 Dalvik 可执行文件分包支持</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%84%E9%81%BF-64K-%E9%99%90%E5%88%B6"><span class="toc-number">2.</span> <span class="toc-text">规避 64K 限制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E6%82%A8%E7%9A%84%E5%BA%94%E7%94%A8%E8%BF%9B%E8%A1%8C-Dalvik-%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E5%88%86%E5%8C%85"><span class="toc-number">3.</span> <span class="toc-text">配置您的应用进行 Dalvik 可执行文件分包</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Dalvik-%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E5%88%86%E5%8C%85%E6%94%AF%E6%8C%81%E5%BA%93%E7%9A%84%E5%B1%80%E9%99%90%E6%80%A7"><span class="toc-number">3.1.</span> <span class="toc-text">Dalvik 可执行文件分包支持库的局限性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A3%B0%E6%98%8E%E4%B8%BB-DEX-%E6%96%87%E4%BB%B6%E4%B8%AD%E9%9C%80%E8%A6%81%E7%9A%84%E7%B1%BB"><span class="toc-number">4.</span> <span class="toc-text">声明主 DEX 文件中需要的类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#multiDexKeepFile-%E5%B1%9E%E6%80%A7"><span class="toc-number">4.1.</span> <span class="toc-text">multiDexKeepFile 属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#multiDexKeepProguard-%E5%B1%9E%E6%80%A7"><span class="toc-number">4.2.</span> <span class="toc-text">multiDexKeepProguard 属性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E5%BC%80%E5%8F%91%E6%9E%84%E5%BB%BA%E4%B8%AD%E7%9A%84-Dalvik-%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E5%88%86%E5%8C%85"><span class="toc-number">5.</span> <span class="toc-text">优化开发构建中的 Dalvik 可执行文件分包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95-Dalvik-%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E5%88%86%E5%8C%85%E5%BA%94%E7%94%A8"><span class="toc-number">6.</span> <span class="toc-text">测试 Dalvik 可执行文件分包应用</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-配置方法数超过 64K 的应用" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      【转载】配置方法数超过 64K 的应用
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2020/12/25/configure-apps-with-more-than-64k-methods/" class="article-date">
+	  <time datetime="2020-12-25T08:26:03.000Z" itemprop="datePublished">2020-12-25</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/Android/" rel="tag">Android</a>
+  </span>
+
+
+        
+
+        <!-- <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2020/12/25/configure-apps-with-more-than-64k-methods/#comments" class="article-comment-link">评论</a></span> -->
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 3.7k(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 14(分)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>随着 Android 平台的持续成长，Android 应用的大小也在增加。当您的应用及其引用的库达到特定大小时，您会遇到构建错误，指明您的应用已达到 Android 应用构建架构的极限。早期版本的构建系统按如下方式报告这一错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Conversion to Dalvik format failed:</span><br><span class="line">Unable to execute dex: method ID not in [0, 0xffff]: 65536</span><br></pre></td></tr></table></figure>
+
+<p>较新版本的 Android 构建系统虽然显示的错误不同，但指示的是同一问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">trouble writing output:</span><br><span class="line">Too many field references: 131000; max is 65536.</span><br><span class="line">You may try using --multi-dex option.</span><br></pre></td></tr></table></figure>
+
+<p>这些错误状况都会显示下面这个数字：65,536。这个数字很重要，因为它代表的是单个 Dalvik Executable (DEX) 字节码文件内的代码可调用的引用总数。本页介绍如何通过启用被称为 Dalvik 可执行文件分包的应用配置来越过这一限制，使您的应用能够构建并读取 Dalvik 可执行文件分包 DEX 文件。</p>
+<h2 id="关于-64K-引用限制"><a href="#关于-64K-引用限制" class="headerlink" title="关于 64K 引用限制"></a>关于 64K 引用限制</h2><p>Android 应用 (APK) 文件包含 <a target="_blank" rel="noopener" href="https://source.android.com/devices/tech/dalvik/">Dalvik</a> Executable (DEX) 文件形式的可执行字节码文件，其中包含用来运行您的应用的已编译代码。Dalvik Executable 规范将可在单个 DEX 文件内可引用的方法总数限制在 65,536，其中包括 Android 框架方法、库方法以及您自己代码中的方法。在计算机科学领域内，术语<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Kilo-"><em>千（简称 K）</em></a>表示 1024（或 2^10）。由于 65,536 等于 64 X 1024，因此这一限制也称为“64K 引用限制”。</p>
+<h3 id="Android-5-0-之前版本的-Dalvik-可执行文件分包支持"><a href="#Android-5-0-之前版本的-Dalvik-可执行文件分包支持" class="headerlink" title="Android 5.0 之前版本的 Dalvik 可执行文件分包支持"></a>Android 5.0 之前版本的 Dalvik 可执行文件分包支持</h3><p>Android 5.0（API 级别 21）之前的平台版本使用 Dalvik 运行时来执行应用代码。默认情况下，Dalvik 限制应用的每个 APK 只能使用单个 <code>classes.dex</code> 字节码文件。要想绕过这一限制，您可以使用 <a target="_blank" rel="noopener" href="https://developer.android.com/tools/support-library/features.html#multidex">Dalvik 可执行文件分包支持库</a>，它会成为您的应用主要 DEX 文件的一部分，然后管理对其他 DEX 文件及其所包含代码的访问。</p>
+<blockquote>
+<p><strong>注</strong>：如果您的项目配置时所面向的 Dalvik 可执行文件分包使用的是 <code>minSdkVersion 20</code> 或更低版本，并且您将其部署到运行 Android 4.4（API 级别 20）或更低版本的目标设备上，则 Android Studio 会停用 <a target="_blank" rel="noopener" href="https://developer.android.com/tools/building/building-studio.html#instant-run">Instant Run</a>。</p>
+</blockquote>
+<h3 id="Android-5-0-及更高版本的-Dalvik-可执行文件分包支持"><a href="#Android-5-0-及更高版本的-Dalvik-可执行文件分包支持" class="headerlink" title="Android 5.0 及更高版本的 Dalvik 可执行文件分包支持"></a>Android 5.0 及更高版本的 Dalvik 可执行文件分包支持</h3><p>Android 5.0（API 级别 21）及更高版本使用名为 ART 的运行时，后者原生支持从 APK 文件加载多个 DEX 文件。ART 在应用安装时执行预编译，扫描 classesN.dex 文件，并将它们编译成单个 .oat 文件，供 Android 设备执行。因此，如果您的 minSdkVersion 为 21 或更高值，则不需要 Dalvik 可执行文件分包支持库。</p>
+<p>如需了解有关 Android 5.0 运行时的详细信息，请参阅 <a target="_blank" rel="noopener" href="https://source.android.com/devices/tech/dalvik/art.html">ART 和 Dalvik</a>。</p>
+<blockquote>
+<p><strong>注</strong>：如果将应用的 <code>minSdkVersion</code> 设置为 21 或更高值，使用 <a target="_blank" rel="noopener" href="https://developer.android.com/tools/building/building-studio.html#instant-run">Instant Run</a> 时，Android Studio 会自动将应用配置为进行 Dalvik 可执行文件分包。由于 Instant Run 仅适用于调试版本的应用，您仍需配置发布构建进行 Dalvik 可执行文件分包，以规避 64K 限制。</p>
+</blockquote>
+<h2 id="规避-64K-限制"><a href="#规避-64K-限制" class="headerlink" title="规避 64K 限制"></a>规避 64K 限制</h2><p>在将您的应用配置为支持使用 64K 或更多方法引用之前，您应该采取措施减少应用代码调用的引用总数，包括由您的应用代码或包含的库定义的方法。下列策略可帮助您避免达到 DEX 引用限制：</p>
+<ul>
+<li>  <strong>检查您的应用的直接和传递依赖项</strong> - 确保您在应用中使用任何庞大依赖库所带来的好处大于为应用添加大量代码所带来的弊端。一种常见的反面模式是，仅仅为了使用几个实用方法就在应用中加入非常庞大的库。减少您的应用代码依赖项往往能够帮助您规避 dex 引用限制。</li>
+<li>  <strong>通过 ProGuard 移除未使用的代码</strong> - 为您的版本构建<a target="_blank" rel="noopener" href="https://developer.android.com/studio/build/shrink-code.html">启用代码压缩</a>以运行 ProGuard。启用压缩可确保您交付的 APK 不含有未使用的代码。</li>
+</ul>
+<p>使用这些技巧使您不必在应用中启用 Dalvik 可执行文件分包，同时还会减小 APK 的总体大小。</p>
+<h2 id="配置您的应用进行-Dalvik-可执行文件分包"><a href="#配置您的应用进行-Dalvik-可执行文件分包" class="headerlink" title="配置您的应用进行 Dalvik 可执行文件分包"></a>配置您的应用进行 Dalvik 可执行文件分包</h2><p>将您的应用项目设置为使用 Dalvik 可执行文件分包配置需要对您的应用项目进行以下修改，具体取决于应用支持的最低 Android 版本。</p>
+<p>如果您的 minSdkVersion 设置为 21 或更高值，您只需在模块级 build.gradle 文件中将 multiDexEnabled 设置为 true，如此处所示：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    defaultConfig &#123;</span><br><span class="line">        ...</span><br><span class="line">        minSdkVersion <span class="number">21</span> </span><br><span class="line">        targetSdkVersion <span class="number">28</span></span><br><span class="line">        multiDexEnabled <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是，如果您的 <code>minSdkVersion</code> 设置为 20 或更低值，则您必须按如下方式使用 <a target="_blank" rel="noopener" href="https://developer.android.com/tools/support-library/features.html#multidex">Dalvik 可执行文件分包支持库</a>：</p>
+<ul>
+<li>修改模块级 build.gradle 文件以启用 Dalvik 可执行文件分包，并将 Dalvik 可执行文件分包库添加为依赖项，如此处所示：</li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    defaultConfig &#123;</span><br><span class="line">        ...</span><br><span class="line">        minSdkVersion <span class="number">15</span> </span><br><span class="line">        targetSdkVersion <span class="number">28</span></span><br><span class="line">        multiDexEnabled <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">  compile <span class="string">&#x27;com.android.support:multidex:1.0.3&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>根据是否要替换 <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/app/Application.html"><code>Application</code></a> 类，执行以下操作之一：</li>
+</ul>
+<ol>
+<li>如果您<em>没有</em>替换 <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/app/Application.html"><code>Application</code></a> 类，请编辑清单文件，按如下方式设置 <code>&lt;application&gt;</code> 标记中的 <code>android:name</code>：</li>
+</ol>
+ <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">manifest</span> <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">package</span>=<span class="string">&quot;com.example.myapp&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">application</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">&quot;android.support.multidex.MultiDexApplication&quot;</span> &gt;</span></span><br><span class="line">        ...</span><br><span class="line">    <span class="tag">&lt;/<span class="name">application</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">manifest</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>如果您替换了 <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/app/Application.html"><code>Application</code></a> 类，请按如下方式对其进行更改以扩展 <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/support/multidex/MultiDexApplication.html"><code>MultiDexApplication</code></a>（如果可能）：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyApplication</span> <span class="keyword">extends</span> <span class="title">MultiDexApplication</span> </span>&#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>或者，如果您替换了 <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/app/Application.html"><code>Application</code></a> 类，但无法更改基本类，则可以改为替换 <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/content/ContextWrapper.html#attachBaseContext(android.content.Context)"><code>attachBaseContext()</code></a> 方法并调用 <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/support/multidex/MultiDex.html#install(android.content.Context)"><code>MultiDex.install(this)</code></a> 来启用 Dalvik 可执行文件分包：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyApplication</span> <span class="keyword">extends</span> <span class="title">SomeOtherApplication</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">attachBaseContext</span><span class="params">(Context base)</span> </span>&#123;</span><br><span class="line">     <span class="keyword">super</span>.attachBaseContext(base);</span><br><span class="line">     MultiDex.install(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>构建应用后，Android 构建工具会根据需要构建主 DEX 文件 (classes.dex) 和辅助 DEX 文件（classes2.dex 和 classes3.dex 等）。然后，构建系统会将所有 DEX 文件打包到您的 APK 中。</p>
+<p>运行时，Dalvik 可执行文件分包 API 使用特殊的类加载器来搜索适用于您的方法的所有 DEX 文件（而不是仅在主 classes.dex 文件中搜索）。</p>
+<h3 id="Dalvik-可执行文件分包支持库的局限性"><a href="#Dalvik-可执行文件分包支持库的局限性" class="headerlink" title="Dalvik 可执行文件分包支持库的局限性"></a>Dalvik 可执行文件分包支持库的局限性</h3><p>Dalvik 可执行文件分包支持库具有一些已知的局限性，将其纳入您的应用构建配置之中时，您应该注意这些局限性并进行针对性的测试：</p>
+<ul>
+<li>  启动期间在设备数据分区中安装 DEX 文件的过程相当复杂，如果辅助 DEX 文件较大，可能会导致应用无响应 (ANR) 错误。在此情况下，您应该<a target="_blank" rel="noopener" href="https://developer.android.com/studio/build/shrink-code.html">通过 ProGuard 应用代码压缩</a>以尽量减小 DEX 文件的大小，并移除未使用的那部分代码。</li>
+<li>  由于存在 Dalvik linearAlloc 错误（问题 <a target="_blank" rel="noopener" href="http://b.android.com/22586">22586</a>），使用 Dalvik 可执行文件分包的应用可能无法在运行的平台版本早于 Android 4.0（API 级别 14）的设备上启动。如果您的目标 API 级别低于 14，请务必针对这些版本的平台进行测试，因为您的应用可能会在启动时或加载特定类群时出现问题。代码压缩可以减少甚至有可能消除这些潜在问题。</li>
+<li>  由于存在 Dalvik linearAlloc 限制（问题 <a target="_blank" rel="noopener" href="http://b.android.com/78035">78035</a>），因此，如果使用 Dalvik 可执行文件分包配置的应用发出非常庞大的内存分配请求，则可能会在运行期间发生崩溃。尽管 Android 4.0（API 级别 14）提高了分配限制，但在 Android 5.0（API 级别 21）之前的 Android 版本上，应用仍有可能遭遇这一限制。</li>
+</ul>
+<h2 id="声明主-DEX-文件中需要的类"><a href="#声明主-DEX-文件中需要的类" class="headerlink" title="声明主 DEX 文件中需要的类"></a>声明主 DEX 文件中需要的类</h2><p>为 Dalvik 可执行文件分包构建每个 DEX 文件时，构建工具会执行复杂的决策制定来确定主要 DEX 文件中需要的类，以便应用能够成功启动。如果启动期间需要的任何类未在主 DEX 文件中提供，那么您的应用将崩溃并出现错误 <code>java.lang.NoClassDefFoundError</code>。</p>
+<p>该情况不应出现在直接从应用代码访问的代码上，因为构建工具能识别这些代码路径，但可能在代码路径可见性较低（如使用的库具有复杂的依赖项）时出现。例如，如果代码使用自检机制或从原生代码调用 Java 方法，那么这些类可能不会被识别为主 DEX 文件中的必需项。</p>
+<p>因此，如果您收到 <code>java.lang.NoClassDefFoundError</code>，则必须使用构建类型中的 <a target="_blank" rel="noopener" href="http://google.github.io/android-gradle-dsl/current/com.android.build.gradle.internal.dsl.BuildType.html#com.android.build.gradle.internal.dsl.BuildType:multiDexKeepFile"><code>multiDexKeepFile</code></a> 或 <a target="_blank" rel="noopener" href="http://google.github.io/android-gradle-dsl/2.2/com.android.build.gradle.internal.dsl.BuildType.html#com.android.build.gradle.internal.dsl.BuildType:multiDexKeepProguard"><code>multiDexKeepProguard</code></a> 属性声明它们，以手动将这些其他类指定为主 DEX 文件中的必需项。如果类在 <code>multiDexKeepFile</code> 或 <code>multiDexKeepProguard</code> 文件中匹配，则该类会添加至主 DEX 文件。</p>
+<h3 id="multiDexKeepFile-属性"><a href="#multiDexKeepFile-属性" class="headerlink" title="multiDexKeepFile 属性"></a>multiDexKeepFile 属性</h3><p>您在 multiDexKeepFile 中指定的文件应该每行包含一个类，并且采用 com/example/MyClass.class 的格式。例如，您可以创建一个名为 multidex-config.txt 的文件，如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">com/example/MyClass.class</span><br><span class="line">com/example/MyOtherClass.class</span><br></pre></td></tr></table></figure>
+
+<p>然后，您可以按以下方式针对构建类型声明该文件：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    buildTypes &#123;</span><br><span class="line">        release &#123;</span><br><span class="line">            multiDexKeepFile file(<span class="string">&#x27;multidex-config.txt&#x27;</span>)</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>请记住，Gradle 会读取相对于 build.gradle 文件的路径，因此如果 multidex-config.txt 与 build.gradle 文件在同一目录中，以上示例将有效。</p>
+<h3 id="multiDexKeepProguard-属性"><a href="#multiDexKeepProguard-属性" class="headerlink" title="multiDexKeepProguard 属性"></a>multiDexKeepProguard 属性</h3><p><code>multiDexKeepProguard</code> 文件使用与 Proguard 相同的格式，并且支持整个 Proguard 语法。如需了解有关 Proguard 格式和语法的详细信息，请参阅 Proguard 手册中的 <a target="_blank" rel="noopener" href="http://proguard.sourceforge.net/manual/usage.html#keepoptions">Keep Options</a> 一节。</p>
+<p>您在 <code>multiDexKeepProguard</code> 中指定的文件应该在任何有效的 ProGuard 语法中包含 <code>-keep</code> 选项。例如，<code>-keep com.example.MyClass.class</code>。您可以创建一个名为 <code>multidex-config.pro</code> 的文件，如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-keep class com.example.MyClass</span><br><span class="line">-keep class com.example.MyClassToo</span><br></pre></td></tr></table></figure>
+
+<p>如果您想要指定包中的所有类，文件将如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-keep class com.example.** &#123; *; &#125; // All classes in the com.example package</span><br></pre></td></tr></table></figure>
+
+<p>然后，您可以按以下方式针对构建类型声明该文件：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    buildTypes &#123;</span><br><span class="line">        release &#123;</span><br><span class="line">            multiDexKeepProguard(<span class="string">&#x27;multidex-config.pro&#x27;</span>)</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="优化开发构建中的-Dalvik-可执行文件分包"><a href="#优化开发构建中的-Dalvik-可执行文件分包" class="headerlink" title="优化开发构建中的 Dalvik 可执行文件分包"></a>优化开发构建中的 Dalvik 可执行文件分包</h2><p>Dalvik 可执行文件分包配置会大幅增加构建处理时间，因为构建系统必须就哪些类必须包括在主 DEX 文件中以及哪些类可以包括在辅助 DEX 文件中作出复杂的决策。这意味着使用 Dalvik 可执行文件分包的增量式构建通常耗时更长，可能会拖慢您的开发进度。</p>
+<p>为了缩短耗时更长的 Dalvik 可执行文件分包输出构建时间，请利用 <a target="_blank" rel="noopener" href="http://tools.android.com/tech-docs/new-build-system/user-guide#TOC-Product-flavors"><code>productFlavors</code></a>（一个开发定制和一个发布定制，具有不同的 <code>minSdkVersion</code> 值）创建两个构建变型。</p>
+<p>对于开发定制，将 <code>minSdkVersion</code> 设置为 21。该设置将启用一个名为 <em>pre-dexing</em> 的构建功能，此功能使用仅适用于 Android 5.0（API 级别 21）和更高版本的 ART 格式更快生成 Dalvik 可执行文件分包输出。对于发布定制，将 <code>minSdkVersion</code> 设置为适于您的实际最低支持级别。此设置生成的 Dalvik 可执行文件分包 APK 可兼容更多设备，但构建时间更长。</p>
+<p>以下构建配置示例展示了如何在 Gradle 构建文件中设置这些定制：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    defaultConfig &#123;</span><br><span class="line">        ...</span><br><span class="line">        multiDexEnabled <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">    productFlavors &#123;</span><br><span class="line">        dev &#123;</span><br><span class="line">            <span class="comment">// Enable pre-dexing to produce an APK that can be tested on</span></span><br><span class="line">            <span class="comment">// Android 5.0+ without the time-consuming DEX build processes.</span></span><br><span class="line">            minSdkVersion <span class="number">21</span></span><br><span class="line">        &#125;</span><br><span class="line">        prod &#123;</span><br><span class="line">            <span class="comment">// The actual minSdkVersion for the production version.</span></span><br><span class="line">            minSdkVersion <span class="number">14</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    buildTypes &#123;</span><br><span class="line">        release &#123;</span><br><span class="line">            minifyEnabled <span class="literal">true</span></span><br><span class="line">            proguardFiles getDefaultProguardFile(<span class="string">&#x27;proguard-android.txt&#x27;</span>),</span><br><span class="line">                                                 <span class="string">&#x27;proguard-rules.pro&#x27;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">dependencies &#123;</span><br><span class="line">    compile <span class="string">&#x27;com.android.support:multidex:1.0.3&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>您完成此配置变更后，可以为增量式构建使用应用的 <code>devDebug</code> 变体，后者集 <code>dev</code> 产品定制与 <code>debug</code> 构建类型的属性于一身。这将创建已启用 Dalvik 可执行文件分包且禁用 proguard 的可调试应用（因为 <code>minifyEnabled</code> 默认为 <code>false</code>）。这些设置会使适用于 Gradle 的 Android 插件执行以下操作：</p>
+<ol>
+<li> 执行 pre-dexing：将每个应用模块和每个依赖项构建为单独的 DEX 文件。</li>
+<li> 将每个 DEX 文件加入 APK，并且不做任何修改（不执行代码压缩）。</li>
+<li> 最重要的是，模块 DEX 文件不执行合并操作，因此可以避免为确定主 DEX 文件的内容而进行长时间的计算。</li>
+</ol>
+<p>这些设置的好处是，可以进行快速的增量式构建，因为只有修改过的模块的 DEX 文件才会在后续构建期间重新计算并重新打包。但是，这些构建的 APK 只能用于在 Android 5.0 设备上进行测试。不过，由于是以定制形式实现配置，您保留了使用与发布相适的最低 API 级别和 ProGuard 代码压缩执行正常构建的能力。</p>
+<p>您还可以构建其他变体，包括 <code>prodDebug</code> 变体构建，该变体虽然构建时间更长，但可用于开发以外的测试。在所示配置内，<code>prodRelease</code> 变体将是最终测试和发布版本。如需了解有关使用构建变体的详细信息，请参阅<a target="_blank" rel="noopener" href="https://developer.android.com/studio/build/build-variants.html">配置构建变体</a>。</p>
+<blockquote>
+<p><strong>提示</strong>：由于您有适用于不同 Dalvik 可执行文件分包需求的不同构建变体，因此也可以为不同变体提供不同清单文件（这样，只有适用于 API 级别 20 和更低版本的清单文件会更改 <code>&lt;application&gt;</code> 标记名称），或者为每个变体创建不同的 <code>Application</code> 子类（这样，只有适用于 API 级别 20 和更低版本的清单文件会扩展 <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/support/multidex/MultiDexApplication.html"><code>MultiDexApplication</code></a> 类或调用 <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/support/multidex/MultiDex.html#install(android.content.Context)"><code>MultiDex.install(this)</code></a>）。</p>
+</blockquote>
+<h2 id="测试-Dalvik-可执行文件分包应用"><a href="#测试-Dalvik-可执行文件分包应用" class="headerlink" title="测试 Dalvik 可执行文件分包应用"></a>测试 Dalvik 可执行文件分包应用</h2><p>编写面向 Dalvik 可执行文件分包应用的仪器测试时，无需进行其他配置。<a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/support/test/runner/AndroidJUnitRunner.html"><code>AndroidJUnitRunner</code></a> 直接支持 Dalvik 可执行文件分包，前提是您使用 <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/support/multidex/MultiDexApplication.html"><code>MultiDexApplication</code></a> 或替换您的自定义 <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/app/Application.html"><code>Application</code></a> 对象中的 <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/content/ContextWrapper.html#attachBaseContext(android.content.Context)"><code>attachBaseContext() 方法，并调用 </code></a> <a target="_blank" rel="noopener" href="https://developer.android.com/reference/android/support/multidex/MultiDex.html#install(android.content.Context)"><code>MultiDex.install(this)</code></a> 以启用 Dalvik 可执行文件分包。<br>或者，您可以替换 AndroidJUnitRunner 中的 onCreate() 方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle arguments)</span> </span>&#123;</span><br><span class="line">    MultiDex.install(getTargetContext());</span><br><span class="line">    <span class="keyword">super</span>.onCreate(arguments);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注</strong>：目前不支持使用 Dalvik 可执行文件分包来创建测试 APK。</p>
+</blockquote>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://laujiangtao.github.io/2020/12/25/configure-apps-with-more-than-64k-methods/" title="【转载】配置方法数超过 64K 的应用" target="_blank" rel="external">https://laujiangtao.github.io/2020/12/25/configure-apps-with-more-than-64k-methods/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/laujiangtao" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/laujiangtao" target="_blank"><span class="text-dark">Kavan</span><small class="ml-1x"></small></a></h3>
+        <div>以正视听</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+
+  
+    
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2020/12/28/download-jdk-and-configure-environment-variables/" title="下载JDK和配置环境变量"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2020/12/25/android-grabs-red-envelopes/" title="Android抢红包"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">
+        <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>赏</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>感谢您的支持，我会继续努力的!</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开支付宝扫一扫，即可进行扫码打赏哦</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开微信扫一扫，即可进行扫码打赏哦</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> 支付宝</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> 微信支付</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+    <div class="copyright">
+    	
+        &copy; 2021 Kavan
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+</body>
+</html>

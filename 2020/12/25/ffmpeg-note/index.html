@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>FFmpeg笔记 | Kavan</title>
+  <meta name="description" content="Mac&#x2F;Linux下编译ffmpeg.&#x2F;configure --prefix&#x3D;&#x2F;usr&#x2F;local&#x2F;ffmpeg --enable-debug&#x3D;3 --disable-static --enable-shared --enable-libfdk-aac --enable-gpl --enable-nonfree参数含义：   –prefix 指定安装路径 –enable-debug&#x3D;3 打开调试模">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FFmpeg笔记">
+<meta property="og:url" content="https://laujiangtao.github.io/2020/12/25/ffmpeg-note/index.html">
+<meta property="og:site_name" content="Hexo | Kavan">
+<meta property="og:description" content="Mac&#x2F;Linux下编译ffmpeg.&#x2F;configure --prefix&#x3D;&#x2F;usr&#x2F;local&#x2F;ffmpeg --enable-debug&#x3D;3 --disable-static --enable-shared --enable-libfdk-aac --enable-gpl --enable-nonfree参数含义：   –prefix 指定安装路径 –enable-debug&#x3D;3 打开调试模">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://laujiangtao.github.io/2020/12/25/ffmpeg-note/%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E5%99%A8%E5%8E%9F%E7%90%86.png">
+<meta property="article:published_time" content="2020-12-25T03:17:18.000Z">
+<meta property="article:modified_time" content="2021-05-15T15:53:10.077Z">
+<meta property="article:author" content="Kavan">
+<meta property="article:tag" content="FFmpeg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://laujiangtao.github.io/2020/12/25/ffmpeg-note/%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E5%99%A8%E5%8E%9F%E7%90%86.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://laujiangtao.github.io/2020/12/25/ffmpeg-note/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo | Kavan" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/laujiangtao" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Kavan</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md"></h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">外链</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-music">
+          <a href="/music">
+            
+            <i class="icon icon-book-fill"></i>
+            
+            <span class="menu-title">音乐</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>无</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Question/">Question</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E4%BA%92%E8%81%94%E7%BD%91%E5%8A%A8%E6%80%81/">互联网动态</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><span class="category-list-count">17</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%94%9F%E6%B4%BB/">生活</a><span class="category-list-count">3</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/" rel="tag">Android</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Code/" rel="tag">Code</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FFmpeg/" rel="tag">FFmpeg</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin/" rel="tag">Kotlin</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Terminal/" rel="tag">Terminal</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audio/" rel="tag">audio</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flutter/" rel="tag">flutter</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/" rel="tag">java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jekins/" rel="tag">jekins</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E5%AE%9A%E4%B9%89View/" rel="tag">自定义View</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E6%89%8B%E6%8B%8D/" rel="tag">随手拍</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Android/" style="font-size: 14px;">Android</a> <a href="/tags/C/" style="font-size: 13px;">C</a> <a href="/tags/C/" style="font-size: 13px;">C++</a> <a href="/tags/Code/" style="font-size: 13px;">Code</a> <a href="/tags/FFmpeg/" style="font-size: 13px;">FFmpeg</a> <a href="/tags/Java/" style="font-size: 13px;">Java</a> <a href="/tags/Kotlin/" style="font-size: 13px;">Kotlin</a> <a href="/tags/Terminal/" style="font-size: 13px;">Terminal</a> <a href="/tags/audio/" style="font-size: 13px;">audio</a> <a href="/tags/flutter/" style="font-size: 13.5px;">flutter</a> <a href="/tags/java/" style="font-size: 13px;">java</a> <a href="/tags/jekins/" style="font-size: 13.5px;">jekins</a> <a href="/tags/mysql/" style="font-size: 13px;">mysql</a> <a href="/tags/%E8%87%AA%E5%AE%9A%E4%B9%89View/" style="font-size: 13px;">自定义View</a> <a href="/tags/%E9%9A%8F%E6%89%8B%E6%8B%8D/" style="font-size: 13px;">随手拍</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled ">
+        
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2021/09/05/my-butter-knife/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/09/05/my-butter-knife/" class="title">仿butterknife注解</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-09-05T04:14:01.000Z" itemprop="datePublished">2021-09-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2021/05/26/c-language/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/05/26/c-language/" class="title">C语言</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-05-26T01:42:04.000Z" itemprop="datePublished">2021-05-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2021/05/19/android-auto-task/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/05/19/android-auto-task/" class="title">Android自动任务探索</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-05-19T08:15:08.000Z" itemprop="datePublished">2021-05-19</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2021/03/27/linear-telescopic-fillet-rectangle-indicator/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/03/27/linear-telescopic-fillet-rectangle-indicator/" class="title">线性伸缩圆角矩形indicator</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-03-27T12:27:00.000Z" itemprop="datePublished">2021-03-27</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2021/03/09/zentao-project-management-software-deployment/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/03/09/zentao-project-management-software-deployment/" class="title">禅道项目管理软件部署</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-03-09T15:01:55.000Z" itemprop="datePublished">2021-03-09</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Mac-Linux%E4%B8%8B%E7%BC%96%E8%AF%91ffmpeg"><span class="toc-number">1.</span> <span class="toc-text">Mac&#x2F;Linux下编译ffmpeg</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HelloWorld"><span class="toc-number">2.</span> <span class="toc-text">HelloWorld</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E6%96%B9%E5%BC%8F%E9%87%87%E9%9B%86%E9%9F%B3%E9%A2%91"><span class="toc-number">3.</span> <span class="toc-text">命令方式采集音频</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%92%AD%E6%94%BE%E9%9F%B3%E9%A2%91"><span class="toc-number">4.</span> <span class="toc-text">播放音频</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8ffmpeg%E7%94%9F%E6%88%90aac"><span class="toc-number">5.</span> <span class="toc-text">使用ffmpeg生成aac</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Windows-build-%E4%B8%8B%E8%BD%BD"><span class="toc-number">6.</span> <span class="toc-text">Windows build 下载</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%AA%E5%88%87%E8%A7%86%E9%A2%91%EF%BC%88%E9%95%BF%E5%BA%A6%EF%BC%89"><span class="toc-number">7.</span> <span class="toc-text">剪切视频（长度）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%AA%E5%88%87%E8%A7%86%E9%A2%91-%E5%B0%BA%E5%AF%B8%E3%80%81%E9%95%BF%E5%BA%A6"><span class="toc-number">8.</span> <span class="toc-text">剪切视频 (尺寸、长度)</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-FFmpeg笔记" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      FFmpeg笔记
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2020/12/25/ffmpeg-note/" class="article-date">
+	  <time datetime="2020-12-25T03:17:18.000Z" itemprop="datePublished">2020-12-25</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/FFmpeg/" rel="tag">FFmpeg</a>
+  </span>
+
+
+        
+
+        <!-- <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2020/12/25/ffmpeg-note/#comments" class="article-comment-link">评论</a></span> -->
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 1.8k(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 10(分)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h1 id="Mac-Linux下编译ffmpeg"><a href="#Mac-Linux下编译ffmpeg" class="headerlink" title="Mac/Linux下编译ffmpeg"></a>Mac/Linux下编译ffmpeg</h1><p><code>./configure --prefix=/usr/local/ffmpeg --enable-debug=3 --disable-static --enable-shared --enable-libfdk-aac --enable-gpl --enable-nonfree</code><br>参数含义：</p>
+<blockquote>
+<p> –prefix 指定安装路径<br> –enable-debug=3 打开调试模式，级别是3<br> –disable-static 关闭静态库<br> –enable-share 打开动态库</p>
+</blockquote>
+<p>执行完会产生编译脚本make file</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make -j 4</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p>参数含义：</p>
+<blockquote>
+<p>-j 表示同时有多个CPU并发进行<br>最后安装到 <strong>–prefix</strong>指定的路径</p>
+</blockquote>
+<h1 id="HelloWorld"><a href="#HelloWorld" class="headerlink" title="HelloWorld"></a>HelloWorld</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* atgv[])</span></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Hello World!\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译命令：<br><code> gcc/clang -g -o HelloWorld HelloWorld.c</code><br>参数含义：</p>
+<blockquote>
+<p>gcc Linux下的命令<br>clang Mac下的命令<br>-g debug模式<br>-o 要输出文件的名字，这里是HelloWorld<br>xxx.c 源代码<br>执行命令：<br><code> ./HelloWorld</code></p>
+</blockquote>
+<h1 id="命令方式采集音频"><a href="#命令方式采集音频" class="headerlink" title="命令方式采集音频"></a>命令方式采集音频</h1><p>Mac系统<br><code> ffmpeg -f avfoundation -i :0 out.wav</code><br>Linux系统<br><code> ffmpeg -f asla -i hw:0 out.wav</code></p>
+<h1 id="播放音频"><a href="#播放音频" class="headerlink" title="播放音频"></a>播放音频</h1><p><code> ffplay -ar 44100 -ac 2 -f f32le audio.pcm</code></p>
+<h1 id="使用ffmpeg生成aac"><a href="#使用ffmpeg生成aac" class="headerlink" title="使用ffmpeg生成aac"></a>使用ffmpeg生成aac</h1><p><code> ffmpeg -i xxx.mp4 -vn -c:a libfdk_aac -ar 44100 -channels 2 -profile:a aac_he_v2 xxx.aac</code><br>参数含义：</p>
+<blockquote>
+<p>-i 输入的文件<br>-vn v代表video，n代表没有video，vn可以将视频过滤掉<br>-c:a c代表编码器，a代表音频编码器<br>-ar 音频采样率<br>-channels 代表通道数<br>-profile:a 对编码器libfdk_aac设置参数，:a是对音频的编码</p>
+</blockquote>
+<p>缺少库安装：<br><code> brew reinstall ffmpeg --with-sdl2 --with-fdk-aac --with-fontconfig</code></p>
+<p><code> brew install --with-sdl2 --with-fdk-aac --with-fontconfig --with-frei0r --with-game-music-emu --with-libass --with-libbs2b --with-libcaca --with-libgsm --with-libmodplug --with-librsvg --with-libsoxr --with-libssh --with-libvidstab --with-libvorbis --with-libvpx --with-opencore-amr --with-openh264 --with-openjpeg --with-openssl --with-opus --with-rtmpdump --with-rubberband --with-sdl2 --with-snapp --with-speex --with-srt --with-tesseract --with-theora --with-tools --with-two-lame --with-wavpack --with-webp --with-x265 --with-xz --with-zeromq --with-zimg --with-chromaprint --with-libbluray --with-snappy  --with-freetype</code></p>
+<p><img src="/2020/12/25/ffmpeg-note/%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E5%99%A8%E5%8E%9F%E7%90%86.png" alt="视频播放器原理"></p>
+<h1 id="Windows-build-下载"><a href="#Windows-build-下载" class="headerlink" title="Windows build 下载"></a><a href="ffmpeg-4.3.2-2021-02-27-full_build.7z">Windows build 下载</a></h1><h1 id="剪切视频（长度）"><a href="#剪切视频（长度）" class="headerlink" title="剪切视频（长度）"></a>剪切视频（长度）</h1><p><code> ffmpeg -ss 990 -i input.mp4 -t 50 output.mp4</code></p>
+<blockquote>
+<p>-ss 开始的秒数<br>-t 截取时长<br>-s 调整分辨率</p>
+</blockquote>
+<h1 id="剪切视频-尺寸、长度"><a href="#剪切视频-尺寸、长度" class="headerlink" title="剪切视频 (尺寸、长度)"></a>剪切视频 (尺寸、长度)</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ffmpeg -i input -vf crop=w:h:x:y -ss start_time -t duration output</span><br></pre></td></tr></table></figure>
+
+<table>
+    <tr>
+        <th align="center" width="20%">Syntax</th>
+        <th align="center">crop=ow[:oh[:x[:y[:keep_aspect]]]]</th> 
+    </tr >
+    <tr>
+        <th colspan="2" align="center">Avaliable variables in expressions for <u>ow</u> and <u>oh</u> parameters</th>
+    </tr>
+    <tr>
+        <td align="center">x, y</td>
+        <td>computed values for x (number of pixels from top left corner horizontally) and y (number of pixels vertically), they are evaluated for every frame, default values of <b>x</b> is (iw -ow)/2, default value of <b>y</b> is (ih - oh)/2</td>
+    </tr>
+    <tr>
+        <td align="center">in_w, iw</td>
+        <td>input width</td>
+    </tr>
+    <tr>
+        <td align="center">in_h, ih</td>
+        <td>input height</td>
+    </tr>
+    <tr>
+        <td align="center">out_w, ow</td>
+        <td>output(cropped) width, default value = iw</td>
+    </tr>
+    <tr>
+        <td align="center">out_h, oh</td>
+        <td>output(cropped) heigth, default value = ih</td>
+    </tr>
+    <tr>
+        <td align="center">a</td>
+        <td>aspect ratio, same as iw/ih</td>
+    </tr>
+    <tr>
+        <td align="center">sar</td>
+        <td>input same aspect ratio</td>
+    </tr>
+    <tr>
+        <td align="center">dar</td>
+        <td>input display aspect ratio, equals to the expression a*sar</td>
+    </tr>
+    <tr>
+        <td align="center">hsub, vsub</td>
+        <td>horizontal and vertical chroma subsample values, for the pixel format yuv422p the value of hsub is 2 and vsub is 1</td>
+    </tr>
+    <tr>
+        <td align="center">n</td>
+        <td>number of input frame, starting from 0</td>
+    </tr>
+    <tr>
+        <td align="center">pos</td>
+        <td>position in the file of the input frame, NAN if unknown</td>
+    </tr>
+    <tr>
+        <td align="center">t</td>
+        <td>timestamp expressed in seconds, NAN if the input timestamp is unknown</td>
+    </tr>
+</table>
+
+<ul>
+<li>Example:</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line">PS E:\Download&gt; ffmpeg -i .\权力的游戏.第一季.第1集.Game.of.Thrones.S01E01.HK.BD-1080p.X264.AAC.CHS.ENG-UUMp4.mp4 -vf crop=600:800:iw/6:ih/6 -ss 300 -t 60 out.mp4</span><br><span class="line">ffmpeg version 4.3.2-2021-02-27-full_build-www.gyan.dev Copyright (c) 2000-2021 the FFmpeg developers</span><br><span class="line">  built with gcc 10.2.0 (Rev6, Built by MSYS2 project)</span><br><span class="line">  configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-lzma --enable-libsnappy --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-libbluray --enable-libcaca --enable-sdl2 --enable-libdav1d --enable-libzvbi --enable-librav1e --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-libass --enable-frei0r --enable-libfreetype --enable-libfribidi --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-ffnvcodec --enable-nvdec --enable-nvenc --enable-d3d11va --enable-dxva2 --enable-libmfx --enable-libcdio --enable-libgme --enable-libmodplug --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libshine --enable-libtheora --enable-libtwolame --enable-libvo-amrwbenc --enable-libilbc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-ladspa --enable-libbs2b --enable-libflite --enable-libmysofa --enable-librubberband --enable-libsoxr --enable-chromaprint</span><br><span class="line">  libavutil      56. 51.100 / 56. 51.100</span><br><span class="line">  libavcodec     58. 91.100 / 58. 91.100</span><br><span class="line">  libavformat    58. 45.100 / 58. 45.100</span><br><span class="line">  libavdevice    58. 10.100 / 58. 10.100</span><br><span class="line">  libavfilter     7. 85.100 /  7. 85.100</span><br><span class="line">  libswscale      5.  7.100 /  5.  7.100</span><br><span class="line">  libswresample   3.  7.100 /  3.  7.100</span><br><span class="line">  libpostproc    55.  7.100 / 55.  7.100</span><br><span class="line">Input <span class="comment">#0, mov,mp4,m4a,3gp,3g2,mj2, from &#x27;.\权力的游戏.第一季.第1集.Game.of.Thrones.S01E01.HK.BD-1080p.X264.AAC.CHS.ENG-UUMp4.mp4&#x27;:</span></span><br><span class="line">  Metadata:</span><br><span class="line">    major_brand     : mp42</span><br><span class="line">    minor_version   : 1</span><br><span class="line">    compatible_brands: isommp423gp5</span><br><span class="line">    creation_time   : 2019-05-13T16:22:44.000000Z</span><br><span class="line">    encoder         : My MP4Box GUI 0.6.0.6 &lt;http://my-mp4box-gui.zymichost.com&gt;</span><br><span class="line">  Duration: 01:01:37.17, start: 0.000000, bitrate: 2586 kb/s</span><br><span class="line">    Stream <span class="comment">#0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 2485 kb/s, 23.98 fps, 23.98 tbr, 24k tbn, 47.95 tbc (default)</span></span><br><span class="line">    Metadata:</span><br><span class="line">      creation_time   : 2019-05-08T18:52:18.000000Z</span><br><span class="line">      handler_name    : ȨfµÄÓÎϷ.µÚһ�¾.µÚ1�¯.Game.of.Thrones.S01E01.HK.BD-1080p.X264.AAC.CHS.ENG-UUMp4.mp4</span><br><span class="line">      encoder         : AVC Coding</span><br><span class="line">    Stream <span class="comment">#0:1(und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 97 kb/s (default)</span></span><br><span class="line">    Metadata:</span><br><span class="line">      creation_time   : 2019-05-13T16:23:09.000000Z</span><br><span class="line">      handler_name    : Game.of.Thrones.S01E01.HK.Blu-ray.1080p.Remux.H264.DTS-HD.MA.5.1.aac</span><br><span class="line">    Stream <span class="comment">#0:2(und): Data: none (mp4s / 0x7334706D), 0 kb/s (default)</span></span><br><span class="line">    Metadata:</span><br><span class="line">      creation_time   : 2019-05-13T16:23:11.000000Z</span><br><span class="line">      handler_name    : GPAC MPEG-4 OD Handler</span><br><span class="line">    Stream <span class="comment">#0:3(und): Data: none (mp4s / 0x7334706D), 0 kb/s (default)</span></span><br><span class="line">    Metadata:</span><br><span class="line">      creation_time   : 2019-05-13T16:23:11.000000Z</span><br><span class="line">      handler_name    : GPAC MPEG-4 Scene Description Handler</span><br><span class="line">File <span class="string">&#x27;out.mp4&#x27;</span> already exists. Overwrite? [y/N] y</span><br><span class="line">Stream mapping:</span><br><span class="line">  Stream <span class="comment">#0:0 -&gt; #0:0 (h264 (native) -&gt; h264 (libx264))</span></span><br><span class="line">  Stream <span class="comment">#0:1 -&gt; #0:1 (aac (native) -&gt; aac (native))</span></span><br><span class="line">Press [q] to stop, [?] <span class="keyword">for</span> <span class="built_in">help</span></span><br><span class="line">[libx264 @ 00000155b6ac5980] using SAR=1/1</span><br><span class="line">[libx264 @ 00000155b6ac5980] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2</span><br><span class="line">[libx264 @ 00000155b6ac5980] profile High, level 3.1, 4:2:0, 8-bit</span><br><span class="line">[libx264 @ 00000155b6ac5980] 264 - core 161 r3048 b86ae3c - H.264/MPEG-4 AVC codec - Copyleft 2003-2021 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=6 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=23 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00</span><br><span class="line">Output <span class="comment">#0, mp4, to &#x27;out.mp4&#x27;:</span></span><br><span class="line">  Metadata:</span><br><span class="line">    major_brand     : mp42</span><br><span class="line">    minor_version   : 1</span><br><span class="line">    compatible_brands: isommp423gp5</span><br><span class="line">    encoder         : Lavf58.45.100</span><br><span class="line">    Stream <span class="comment">#0:0(und): Video: h264 (libx264) (avc1 / 0x31637661), yuv420p, 600x800 [SAR 1:1 DAR 3:4], q=-1--1, 23.98 fps, 24k tbn, 23.98 tbc (default)</span></span><br><span class="line">    Metadata:</span><br><span class="line">      creation_time   : 2019-05-08T18:52:18.000000Z</span><br><span class="line">      handler_name    : ȨfµÄÓÎϷ.µÚһ�¾.µÚ1�¯.Game.of.Thrones.S01E01.HK.BD-1080p.X264.AAC.CHS.ENG-UUMp4.mp4</span><br><span class="line">      encoder         : Lavc58.91.100 libx264</span><br><span class="line">    Side data:</span><br><span class="line">      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A</span><br><span class="line">    Stream <span class="comment">#0:1(und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 128 kb/s (default)</span></span><br><span class="line">    Metadata:</span><br><span class="line">      creation_time   : 2019-05-13T16:23:09.000000Z</span><br><span class="line">      handler_name    : Game.of.Thrones.S01E01.HK.Blu-ray.1080p.Remux.H264.DTS-HD.MA.5.1.aac</span><br><span class="line">      encoder         : Lavc58.91.100 aac</span><br><span class="line">frame= 1439 fps= 48 q=-1.0 Lsize=    5577kB time=00:01:00.01 bitrate= 761.3kbits/s speed=1.99x</span><br><span class="line">video:4594kB audio:942kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.744073%</span><br><span class="line">[libx264 @ 00000155b6ac5980] frame I:19    Avg QP:18.65  size: 26467</span><br><span class="line">[libx264 @ 00000155b6ac5980] frame P:480   Avg QP:20.83  size:  5503</span><br><span class="line">[libx264 @ 00000155b6ac5980] frame B:940   Avg QP:22.86  size:  1658</span><br><span class="line">[libx264 @ 00000155b6ac5980] consecutive B-frames:  9.5%  8.6%  4.6% 77.3%</span><br><span class="line">[libx264 @ 00000155b6ac5980] mb I  I16..4: 13.6% 77.6%  8.8%</span><br><span class="line">[libx264 @ 00000155b6ac5980] mb P  I16..4:  6.2% 12.2%  0.4%  P16..4: 41.1%  8.5%  5.4%  0.0%  0.0%    skip:26.2%</span><br><span class="line">[libx264 @ 00000155b6ac5980] mb B  I16..4:  0.7%  0.7%  0.0%  B16..8: 36.9%  1.7%  0.2%  direct: 1.0%  skip:58.7%  L0:45.0% L1:53.6% BI: 1.4%</span><br><span class="line">[libx264 @ 00000155b6ac5980] 8x8 transform intra:65.0% inter:88.4%</span><br><span class="line">[libx264 @ 00000155b6ac5980] coded y,uvDC,uvAC intra: 35.4% 42.5% 4.1% inter: 9.1% 13.9% 0.0%</span><br><span class="line">[libx264 @ 00000155b6ac5980] i16 v,h,dc,p: 38% 23% 16% 24%</span><br><span class="line">[libx264 @ 00000155b6ac5980] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 22% 18% 37%  4%  4%  4%  4%  4%  4%</span><br><span class="line">[libx264 @ 00000155b6ac5980] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 22% 19% 18%  6%  9%  7%  8%  5%  5%</span><br><span class="line">[libx264 @ 00000155b6ac5980] i8c dc,h,v,p: 64% 16% 19%  1%</span><br><span class="line">[libx264 @ 00000155b6ac5980] Weighted P-Frames: Y:0.4% UV:0.4%</span><br><span class="line">[libx264 @ 00000155b6ac5980] ref P L0: 69.3%  9.9% 15.6%  5.2%  0.0%</span><br><span class="line">[libx264 @ 00000155b6ac5980] ref B L0: 88.0%  9.7%  2.2%</span><br><span class="line">[libx264 @ 00000155b6ac5980] ref B L1: 96.9%  3.1%</span><br><span class="line">[libx264 @ 00000155b6ac5980] kb/s:626.89</span><br><span class="line">[aac @ 00000155b6abfb40] Qavg: 163.868</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://laujiangtao.github.io/2020/12/25/ffmpeg-note/" title="FFmpeg笔记" target="_blank" rel="external">https://laujiangtao.github.io/2020/12/25/ffmpeg-note/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/laujiangtao" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/laujiangtao" target="_blank"><span class="text-dark">Kavan</span><small class="ml-1x"></small></a></h3>
+        <div>以正视听</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+
+  
+    
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2020/12/25/android-grabs-red-envelopes/" title="Android抢红包"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">
+        <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>赏</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>感谢您的支持，我会继续努力的!</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开支付宝扫一扫，即可进行扫码打赏哦</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开微信扫一扫，即可进行扫码打赏哦</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> 支付宝</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> 微信支付</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+    <div class="copyright">
+    	
+        &copy; 2021 Kavan
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+</body>
+</html>
