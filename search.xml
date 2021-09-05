@@ -376,21 +376,6 @@
       </tags>
   </entry>
   <entry>
-    <title>2021 Happy New Year</title>
-    <url>/2021/02/12/happy-new-year/</url>
-    <content><![CDATA[<p>2021，30而立，年除日，吃自己下的饺子。</p>
-<ul>
-<li><p>猪肉香菇馅的饺子<br><img src="/2021/02/12/happy-new-year/IMG_2452.jpeg" alt="猪肉香菇馅的饺子"></p>
-</li>
-<li><p>崂山啤酒<br><img src="/2021/02/12/happy-new-year/IMG_2455.jpeg" alt="崂山啤酒"></p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>生活</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Linux安装Flutter开发环境</title>
     <url>/2021/02/19/linux-install-flutter-development-environment/</url>
     <content><![CDATA[<p><a href="https://flutter.dev/docs/development/tools/sdk/releases?tab=linux">转到下载页</a></p>
@@ -438,6 +423,21 @@
       <tags>
         <tag>flutter</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>2021 Happy New Year</title>
+    <url>/2021/02/12/happy-new-year/</url>
+    <content><![CDATA[<p>2021，30而立，年除日，吃自己下的饺子。</p>
+<ul>
+<li><p>猪肉香菇馅的饺子<br><img src="/2021/02/12/happy-new-year/IMG_2452.jpeg" alt="猪肉香菇馅的饺子"></p>
+</li>
+<li><p>崂山啤酒<br><img src="/2021/02/12/happy-new-year/IMG_2455.jpeg" alt="崂山啤酒"></p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>生活</category>
+      </categories>
   </entry>
   <entry>
     <title>Jekins构建Android项目</title>
@@ -553,6 +553,122 @@
       </categories>
       <tags>
         <tag>自定义View</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Android自动任务探索</title>
+    <url>/2021/05/19/android-auto-task/</url>
+    <content><![CDATA[<p>若要手机自动执行任务，首要做的就是保活自己的app，避免被系统把进程杀掉。</p>
+<p>网络上有许多app保活方式，也有许多靠谱的操作，更多的则是不寻常的路子，而且还不稳定，容易被系统回收资源。</p>
+<p>下面列出三种自己探索过的app保活方式</p>
+<h3 id="方案一：通知保活"><a href="#方案一：通知保活" class="headerlink" title="方案一：通知保活"></a>方案一：通知保活</h3><p>在通知栏创建一个常驻通知，创建的时候将自己应用的上下文传入，目前个中音乐app就是用这种方式实现长时间驻留后台的，Google官方也推荐这种方式。</p>
+<p>定义执行任务的服务，在服务开启的时候显示通知栏的通知保活</p>
+<details>
+<summary><font color='blue'>点我展开</font></summary>
+
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> android.app.*</span><br><span class="line"><span class="keyword">import</span> android.content.Context</span><br><span class="line"><span class="keyword">import</span> android.content.Intent</span><br><span class="line"><span class="keyword">import</span> android.net.Uri</span><br><span class="line"><span class="keyword">import</span> android.os.Build</span><br><span class="line"><span class="keyword">import</span> android.os.IBinder</span><br><span class="line"><span class="keyword">import</span> android.util.Log</span><br><span class="line"><span class="keyword">import</span> cn.ljt.clock.<span class="keyword">open</span></span><br><span class="line"><span class="keyword">import</span> cn.ljt.clock.playAudio</span><br><span class="line"><span class="keyword">import</span> com.tencent.mmkv.MMKV</span><br><span class="line"><span class="keyword">import</span> java.text.SimpleDateFormat</span><br><span class="line"><span class="keyword">import</span> java.util.*</span><br><span class="line"><span class="keyword">import</span> kotlin.concurrent.fixedRateTimer</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NotificationService</span> : <span class="type">Service</span></span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> channelId: String = <span class="string">&quot;ChannelId&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">lateinit</span> <span class="keyword">var</span> timer: Timer</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate()</span><br><span class="line">        startTimer()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onBind</span><span class="params">(intent: <span class="type">Intent</span>)</span></span>: IBinder? &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onStartCommand</span><span class="params">(intent: <span class="type">Intent</span>?, flags: <span class="type">Int</span>, startId: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> notificationManager =</span><br><span class="line">            getSystemService(Context.NOTIFICATION_SERVICE) <span class="keyword">as</span> NotificationManager</span><br><span class="line">        <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O) &#123;</span><br><span class="line">            <span class="keyword">val</span> channel = NotificationChannel(</span><br><span class="line">                channelId,</span><br><span class="line">                packageName + <span class="string">&quot;打卡&quot;</span>,</span><br><span class="line">                NotificationManager.IMPORTANCE_LOW</span><br><span class="line">            )</span><br><span class="line">            notificationManager.createNotificationChannel(channel)</span><br><span class="line">        &#125;</span><br><span class="line">        startForeground(<span class="number">1</span>, getNotification())</span><br><span class="line">        <span class="keyword">return</span> START_STICKY</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">getNotification</span><span class="params">()</span></span>: Notification &#123;</span><br><span class="line">        <span class="keyword">val</span> contentIntent = Intent()</span><br><span class="line">        contentIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)</span><br><span class="line">        contentIntent.action = <span class="string">&quot;android.settings.APPLICATION_DETAILS_SETTINGS&quot;</span></span><br><span class="line">        contentIntent.<span class="keyword">data</span> = Uri.fromParts(<span class="string">&quot;package&quot;</span>, packageName, <span class="literal">null</span>)</span><br><span class="line">        <span class="keyword">val</span> builder: Notification.Builder = Notification.Builder(<span class="keyword">this</span>)</span><br><span class="line">            .setSmallIcon(android.R.mipmap.sym_def_app_icon)</span><br><span class="line">            .setContentIntent(PendingIntent.getActivity(<span class="keyword">this</span>, <span class="number">0</span>, contentIntent, <span class="number">0</span>))</span><br><span class="line">            .setContentTitle(<span class="string">&quot;\&quot;<span class="variable">$packageName</span>\&quot;正在运行&quot;</span>)</span><br><span class="line">            .setContentText(<span class="string">&quot;触摸即可了解详情或停止应用&quot;</span>)</span><br><span class="line">        <span class="comment">//设置Notification的ChannelID,否则不能正常显示</span></span><br><span class="line">        <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O) &#123;</span><br><span class="line">            builder.setChannelId(channelId)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> builder.build()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onDestroy</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onDestroy()</span><br><span class="line">        stopTimer()</span><br><span class="line">        <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.N) &#123;</span><br><span class="line">            stopForeground(STOP_FOREGROUND_REMOVE)</span><br><span class="line">        &#125;</span><br><span class="line">        stopForeground(<span class="literal">true</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">startTimer</span><span class="params">()</span></span> &#123;</span><br><span class="line"></span><br><span class="line">        timer = fixedRateTimer(<span class="string">&quot;&quot;</span>, <span class="literal">false</span>, <span class="number">0</span>, period * <span class="number">1000</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// <span class="doctag">TODO:</span> 根据条件执行任务</span></span><br><span class="line">            &#125; <span class="keyword">catch</span> (e: Exception) &#123;</span><br><span class="line">                Log.i(<span class="string">&quot;TAG&quot;</span>, <span class="string">&quot;<span class="variable">$e</span>&quot;</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">stopTimer</span><span class="params">()</span></span> &#123;</span><br><span class="line">        timer.cancel()</span><br><span class="line">        Log.d(<span class="string">&quot;TAG&quot;</span>, <span class="string">&quot;stopTimer&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<h3 id="方案二：闹钟唤醒"><a href="#方案二：闹钟唤醒" class="headerlink" title="方案二：闹钟唤醒"></a>方案二：闹钟唤醒</h3><p>实现方式时到点发送一个<code>PendingIntent</code>，自己应用声明一个对应的receiver，在receiver中处理事件。</p>
+<ol>
+<li><code>AndroidManifest.xml</code>文件添加receiver</li>
+</ol>
+<details>
+<summary><font color='blue'>点我展开</font></summary>
+
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">receiver</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:name</span>=<span class="string">&quot;.ui.alarm.AlarmReceiver&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:enabled</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:exported</span>=<span class="string">&quot;true&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+</details>
+
+<ol start="2">
+<li>定义receiver类</li>
+</ol>
+<details>
+<summary><font color='blue'>点我展开</font></summary>
+
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AlarmReceiver</span> : <span class="type">BroadcastReceiver</span></span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onReceive</span><span class="params">(context: <span class="type">Context</span>, intent: <span class="type">Intent</span>)</span></span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (intent.action.equals(<span class="string">&quot;<span class="subst">$&#123;context.packageName&#125;</span>.alarm&quot;</span>)) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// <span class="doctag">TODO:</span> 根据条件执行任务</span></span><br><span class="line">            &#125; <span class="keyword">catch</span> (e: Exception) &#123;</span><br><span class="line">                e.printStackTrace()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<ol start="3">
+<li>定义闹钟并开启</li>
+</ol>
+<details>
+<summary><font color='blue'>点我展开</font></summary>
+
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> intent = Intent(<span class="string">&quot;<span class="variable">$packageName</span>.alarm&quot;</span>)</span><br><span class="line">intent.setClass(<span class="keyword">this</span>, AlarmReceiver::<span class="keyword">class</span>.java)</span><br><span class="line"><span class="keyword">val</span> pi = PendingIntent.getBroadcast(<span class="keyword">this</span>, <span class="number">0</span>, intent, <span class="number">0</span>) <span class="comment">//设置一个PendingIntent对象，发送广播</span></span><br><span class="line"><span class="keyword">val</span> alarmManager = getSystemService(ALARM_SERVICE) <span class="keyword">as</span> AlarmManager <span class="comment">//获取AlarmManager对象</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (android.os.Build.VERSION.SDK_INT &gt;= android.os.Build.VERSION_CODES.LOLLIPOP) &#123;</span><br><span class="line">    <span class="keyword">val</span> nextAlarmClock = alarmManager.nextAlarmClock</span><br><span class="line">    <span class="keyword">if</span> (nextAlarmClock != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">val</span> showIntent = nextAlarmClock.showIntent</span><br><span class="line">        <span class="keyword">val</span> triggerTime = nextAlarmClock.triggerTime</span><br><span class="line">        Log.i(<span class="string">&quot;TAG&quot;</span>, <span class="string">&quot;init: <span class="variable">$showIntent</span>&quot;</span>)</span><br><span class="line">        Log.i(<span class="string">&quot;TAG&quot;</span>, <span class="string">&quot;init: <span class="variable">$triggerTime</span>&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//AlarmManager.ELAPSED_REALTIME: 闹钟在手机睡眠状态下不可用，该状态下闹钟使用相对时间（相对于系统启动开始），状态值为3; </span></span><br><span class="line"><span class="comment">//AlarmManager.ELAPSED_REALTIME_WAKEUP: 闹钟在睡眠状态下会唤醒系统并执行提示功能，该状态下闹钟也使用相对时间，状态值为2； </span></span><br><span class="line"><span class="comment">//AlarmManager.RTC: 闹钟在睡眠状态下不可用，该状态下闹钟使用绝对时间，即当前系统时间，状态值为1； </span></span><br><span class="line"><span class="comment">//AlarmManager.RTC_WAKEUP: 表示闹钟在睡眠状态下会唤醒系统并执行提示功能，该状态下闹钟使用绝对时间，状态值为0; </span></span><br><span class="line"><span class="comment">//AlarmManager.POWER_OFF_WAKEUP: 表示闹钟在手机关机状态下也能正常进行提示功能，所以是5个状态中用的最多的状态之一，该状态下闹钟也是用绝对时间，状态值为4；不过本状态好像受SDK版本影响，某些版本并不支持；</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 重复执行，倒数第二参数为间隔时间,单位为毫秒</span></span><br><span class="line">alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, intervalMillis * <span class="number">1000</span>, pi)</span><br><span class="line"></span><br><span class="line"><span class="comment">//时间到时，执行PendingIntent，只执行一次</span></span><br><span class="line">alarmManager[AlarmManager.RTC_WAKEUP, calendar.timeInMillis] = pi</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<h3 id="方案三：屏保保活"><a href="#方案三：屏保保活" class="headerlink" title="方案三：屏保保活"></a>方案三：屏保保活</h3><p>系统的屏保是一个特殊的service，可以设置屏保的UI，在屏保显示的过程中，app一直存活。同样屏保消失的时候，service也会被销毁。</p>
+<ol>
+<li><code>AndroidManifest.xml</code> 中添加屏保服务，一定要添加<code>android.permission.BIND_DREAM_SERVICE</code>权限</li>
+</ol>
+<details>
+<summary><font color='blue'>点我展开</font></summary>
+
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">service</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:name</span>=<span class="string">&quot;.service.MyDream&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:enabled</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:exported</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:icon</span>=<span class="string">&quot;@mipmap/ic_launcher&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:label</span>=<span class="string">&quot;@string/app_name&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:permission</span>=<span class="string">&quot;android.permission.BIND_DREAM_SERVICE&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">&quot;android.service.dreams.DreamService&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">&quot;android.intent.category.DEFAULT&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:name</span>=<span class="string">&quot;android.service.dream&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:resource</span>=<span class="string">&quot;@xml/my_dream&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">service</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</details>
+
+<ol start="2">
+<li>meta-data指向的资源文件里面声明了屏保的设置页面</li>
+</ol>
+<details>
+<summary><font color='blue'>点我展开</font></summary>
+
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dream</span> <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:settingsActivity</span>=<span class="string">&quot;cn.ljt.clock.ui.dreamsetting.MyDreamActivity&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+</details>
+
+<ol start="3">
+<li>屏保服务对应的实体类，继承<code>DreamService</code>，并设置屏保的UI</li>
+</ol>
+<details>
+<summary><font color='blue'>点我展开</font></summary>
+
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> android.content.Context</span><br><span class="line"><span class="keyword">import</span> android.os.SystemClock</span><br><span class="line"><span class="keyword">import</span> android.service.dreams.DreamService</span><br><span class="line"><span class="keyword">import</span> android.util.Log</span><br><span class="line"><span class="keyword">import</span> cn.ljt.clock.R</span><br><span class="line"><span class="keyword">import</span> com.tencent.mmkv.MMKV</span><br><span class="line"><span class="keyword">import</span> java.util.*</span><br><span class="line"><span class="keyword">import</span> kotlin.concurrent.fixedRateTimer</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyDream</span> : <span class="type">DreamService</span></span>() &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> TAG: String? = MyDream::<span class="keyword">class</span>.java.name</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> boolean: <span class="built_in">Boolean</span>? = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">lateinit</span> <span class="keyword">var</span> timer: Timer</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 初始化设置，在这里可以调用 setContentView()</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onAttachedToWindow</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onAttachedToWindow()</span><br><span class="line">        Log.i(TAG, <span class="string">&quot;onAttachedToWindow: &quot;</span>)</span><br><span class="line">        <span class="comment">// Exit dream upon user touch</span></span><br><span class="line">        isInteractive = <span class="literal">false</span></span><br><span class="line">        <span class="comment">// Hide system UI</span></span><br><span class="line">        isFullscreen = <span class="literal">true</span></span><br><span class="line">        <span class="comment">//设置为false会降低屏幕亮度</span></span><br><span class="line">        isScreenBright = <span class="literal">false</span></span><br><span class="line">        <span class="comment">// Set the dream layout</span></span><br><span class="line">        setContentView(R.layout.my_day_dream)</span><br><span class="line">        boolean = MMKV.defaultMMKV()?.getBoolean(<span class="string">&quot;dream_task_enable&quot;</span>, <span class="literal">false</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 在这里回收前面调用的资源（比如 handlers 和 listeners）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onDetachedFromWindow</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onDetachedFromWindow()</span><br><span class="line">        Log.i(TAG, <span class="string">&quot;onDetachedFromWindow: &quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 互动屏保已经启动，这里可以开始播放动画或者其他操作</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onDreamingStarted</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onDreamingStarted()</span><br><span class="line">        Log.i(TAG, <span class="string">&quot;onDreamingStarted: &quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> (boolean == <span class="literal">true</span>) &#123;</span><br><span class="line">            startTimer()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 在停止 onDreamingStarted() 里启动的东西</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onDreamingStopped</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onDreamingStopped()</span><br><span class="line">        Log.i(TAG, <span class="string">&quot;onDreamingStopped: &quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> (boolean == <span class="literal">true</span>) &#123;</span><br><span class="line">            stopTimer()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">startTimer</span><span class="params">()</span></span> &#123;</span><br><span class="line"></span><br><span class="line">        timer = fixedRateTimer(<span class="string">&quot;fixedRateTimer&quot;</span>, <span class="literal">true</span>, period * <span class="number">1000</span>, period * <span class="number">1000</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// <span class="doctag">TODO:</span> 根据条件执行任务</span></span><br><span class="line">            &#125; <span class="keyword">catch</span> (e: Exception) &#123;</span><br><span class="line">                Log.i(<span class="string">&quot;TAG&quot;</span>, <span class="string">&quot;<span class="variable">$e</span>&quot;</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">stopTimer</span><span class="params">()</span></span> &#123;</span><br><span class="line">        timer.cancel()</span><br><span class="line">        Log.d(<span class="string">&quot;TAG&quot;</span>, <span class="string">&quot;stopTimer&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<h3 id="避开屏幕锁"><a href="#避开屏幕锁" class="headerlink" title="避开屏幕锁"></a>避开屏幕锁</h3><p>以上方法可以保活，但是屏幕锁定之后无法开锁。</p>
+<p>尝试多种方式，在高版本的手机上，依然无法自动解锁。</p>
+<p>在上述三种方案中，第三种屏保的方式可以阻止手机进入锁屏状态，故从它入手。</p>
+<p>正常状态下，屏保开启后，轻触屏幕，屏保会自动退出并点亮屏幕。</p>
+<p>所以，只需执行代码，模拟轻触屏保的动作即可。</p>
+<p>以下提供三种方式，在屏保开启后，试图唤醒页面</p>
+<ul>
+<li>调用<code>View</code>的<code>performClick()</code>方法(失败)</li>
+<li>调用<code>DreamService</code>的<code>wakeUp()</code>方法(失败)</li>
+<li>模拟屏幕点击(成功)</li>
+</ul>
+<details>
+<summary><font color='blue'>点我展开</font></summary>
+
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">click</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> inst = Instrumentation()</span><br><span class="line">    inst.sendPointerSync(</span><br><span class="line">        MotionEvent.obtain(</span><br><span class="line">            SystemClock.uptimeMillis(),</span><br><span class="line">            SystemClock.uptimeMillis(),</span><br><span class="line">            MotionEvent.ACTION_DOWN,</span><br><span class="line">            <span class="number">240f</span>,</span><br><span class="line">            <span class="number">400f</span>,</span><br><span class="line">            <span class="number">0</span></span><br><span class="line">        )</span><br><span class="line">    )</span><br><span class="line">    inst.sendPointerSync(</span><br><span class="line">        MotionEvent.obtain(</span><br><span class="line">            SystemClock.uptimeMillis(),</span><br><span class="line">            SystemClock.uptimeMillis(),</span><br><span class="line">            MotionEvent.ACTION_UP,</span><br><span class="line">            <span class="number">240f</span>,</span><br><span class="line">            <span class="number">400f</span>,</span><br><span class="line">            <span class="number">0</span></span><br><span class="line">        )</span><br><span class="line">    )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>仿butterknife注解</title>
+    <url>/2021/09/05/my-butter-knife/</url>
+    <content><![CDATA[<p>1、声明变量上面的注解，约束注解使用范围<br>2、添加注解保留级别为运行时，使得注解能被JVM或其他使用反射机制的代码所读取和使用</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.annotation.ElementType;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Retention;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.RetentionPolicy;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Target;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Target(ElementType.FIELD)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@interface</span> BindView &#123;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">value</span><span class="params">()</span> <span class="keyword">default</span> -1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>1、创建注解类，传入当前activity，后续会使用到activity里面的findviewbyid方法<br>2、获取到activity里面的所有变量属性并遍历（注解消耗性能就在这里）<br>3、判断变量属性上面是否存在上面声明的注解<br>4、如果存在则取出注解并获取注解里面的值<br>5、获取到findViewById方法，通过反射给属性赋值</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> android.app.Activity;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">InjectView</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">inject</span><span class="params">(Activity activity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> == activity) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        Class&lt;? extends Activity&gt; activityClass = activity.getClass();</span><br><span class="line">        Field[] declaredFields = activityClass.getDeclaredFields();</span><br><span class="line">        <span class="keyword">for</span> (Field field : declaredFields) &#123;</span><br><span class="line">            <span class="keyword">if</span> (field.isAnnotationPresent(BindView.class)) &#123;</span><br><span class="line">                BindView bindView = field.getAnnotation(BindView.class);</span><br><span class="line">                <span class="keyword">int</span> value = bindView.value();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    Method findViewById = activityClass.getMethod(<span class="string">&quot;findViewById&quot;</span>, <span class="keyword">int</span>.class);</span><br><span class="line">                    findViewById.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">                    Object view = findViewById.invoke(activity, value);</span><br><span class="line">                    field.set(activity, view);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
       </tags>
   </entry>
   <entry>
@@ -818,6 +934,2490 @@
       </categories>
       <tags>
         <tag>audio</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C语言</title>
+    <url>/2021/05/26/c-language/</url>
+    <content><![CDATA[<h3 id="一步编译"><a href="#一步编译" class="headerlink" title="一步编译"></a>一步编译</h3><p><code>gcc -o hello.exe hello1.c hello2.c</code></p>
+<h3 id="分步编译"><a href="#分步编译" class="headerlink" title="分步编译"></a>分步编译</h3><ol>
+<li>预处理：<code>gcc -E hello.c -o hello.i</code></li>
+</ol>
+<ul>
+<li>展开宏定义</li>
+<li>展开头文件</li>
+<li>条件编译</li>
+<li>删除注释</li>
+</ul>
+<ol start="2">
+<li>编译：<code>gcc -S hello.i -o hello.s</code></li>
+</ol>
+<ul>
+<li>检查语法</li>
+<li>将C语言转成汇编语言</li>
+</ul>
+<ol start="3">
+<li>汇编：<code>gcc -c hello.s -o hello.o</code></li>
+</ol>
+<ul>
+<li>将汇编语言转成机器语言</li>
+</ul>
+<ol start="4">
+<li>链接：<code>gcc hello.o -o hello.exe</code></li>
+</ol>
+<ul>
+<li>将C语言的库文件链接到可执行程序中</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-E</td>
+<td>只进行预处理</td>
+</tr>
+<tr>
+<td>-S</td>
+<td>只进行预处理和编译</td>
+</tr>
+<tr>
+<td>-c</td>
+<td>只进行预处理、编译和汇编</td>
+</tr>
+<tr>
+<td>-o file</td>
+<td>指定生成的文件名为file</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>文件后缀</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>.c</td>
+<td>C语言文件</td>
+</tr>
+<tr>
+<td>.i</td>
+<td>预处理后的C语言文件</td>
+</tr>
+<tr>
+<td>.s</td>
+<td>编译后的汇编文件</td>
+</tr>
+<tr>
+<td>.o</td>
+<td>编译后的目标文件</td>
+</tr>
+</tbody></table>
+<h3 id="转义字符"><a href="#转义字符" class="headerlink" title="转义字符"></a>转义字符</h3><table>
+<thead>
+<tr>
+<th>转义字符</th>
+<th>意义</th>
+<th>ASCII码值（十进制）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>\a</td>
+<td>响铃(BEL)</td>
+<td>007</td>
+</tr>
+<tr>
+<td>\b</td>
+<td>退格(BS) ，将当前位置移到前一列</td>
+<td>008</td>
+</tr>
+<tr>
+<td>\f</td>
+<td>换页(FF)，将当前位置移到下页开头</td>
+<td>012</td>
+</tr>
+<tr>
+<td>\n</td>
+<td>换行(LF) ，将当前位置移到下一行开头</td>
+<td>010</td>
+</tr>
+<tr>
+<td>\r</td>
+<td>回车(CR) ，将当前位置移到本行开头</td>
+<td>013</td>
+</tr>
+<tr>
+<td>\t</td>
+<td>水平制表(HT) （跳到下一个TAB位置）</td>
+<td>009</td>
+</tr>
+<tr>
+<td>\v</td>
+<td>垂直制表(VT)</td>
+<td>011</td>
+</tr>
+<tr>
+<td>\</td>
+<td>代表一个反斜线字符’’&#39;</td>
+<td>092</td>
+</tr>
+<tr>
+<td>&#39;</td>
+<td>代表一个单引号（撇号）字符</td>
+<td>039</td>
+</tr>
+<tr>
+<td>&quot;</td>
+<td>代表一个双引号字符</td>
+<td>034</td>
+</tr>
+<tr>
+<td>?</td>
+<td>代表一个问号</td>
+<td>063</td>
+</tr>
+<tr>
+<td>\0</td>
+<td>空字符(NUL)</td>
+<td>000</td>
+</tr>
+<tr>
+<td>\ddd</td>
+<td>1到3位八进制数所代表的任意字符</td>
+<td>三位八进制</td>
+</tr>
+<tr>
+<td>\xhh</td>
+<td>十六进制所代表的任意字符</td>
+<td>十六进制</td>
+</tr>
+</tbody></table>
+<h3 id="ASCII打印字符对照表"><a href="#ASCII打印字符对照表" class="headerlink" title="ASCII打印字符对照表"></a>ASCII打印字符对照表</h3><table>
+<thead>
+<tr>
+<th align="left">DEC</th>
+<th align="left">OCT</th>
+<th align="left">HEX</th>
+<th align="left">BIN</th>
+<th align="left">缩写/符号</th>
+<th align="left">HTML实体</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">0</td>
+<td align="left">000</td>
+<td align="left">00</td>
+<td align="left">00000000</td>
+<td align="left">NUL</td>
+<td align="left">&#000;</td>
+<td align="left">Null char (空字符)</td>
+</tr>
+<tr>
+<td align="left">1</td>
+<td align="left">001</td>
+<td align="left">01</td>
+<td align="left">00000001</td>
+<td align="left">SOH</td>
+<td align="left">&#001;</td>
+<td align="left">Start of Heading (标题开始)</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="left">002</td>
+<td align="left">02</td>
+<td align="left">00000010</td>
+<td align="left">STX</td>
+<td align="left">&#002;</td>
+<td align="left">Start of Text (正文开始)</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="left">003</td>
+<td align="left">03</td>
+<td align="left">00000011</td>
+<td align="left">ETX</td>
+<td align="left">&#003;</td>
+<td align="left">End of Text (正文结束)</td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="left">004</td>
+<td align="left">04</td>
+<td align="left">00000100</td>
+<td align="left">EOT</td>
+<td align="left">&#004;</td>
+<td align="left">End of Transmission (传输结束)</td>
+</tr>
+<tr>
+<td align="left">5</td>
+<td align="left">005</td>
+<td align="left">05</td>
+<td align="left">00000101</td>
+<td align="left">ENQ</td>
+<td align="left">&#005;</td>
+<td align="left">Enquiry (请求)</td>
+</tr>
+<tr>
+<td align="left">6</td>
+<td align="left">006</td>
+<td align="left">06</td>
+<td align="left">00000110</td>
+<td align="left">ACK</td>
+<td align="left">&#006;</td>
+<td align="left">Acknowledgment (收到通知)</td>
+</tr>
+<tr>
+<td align="left">7</td>
+<td align="left">007</td>
+<td align="left">07</td>
+<td align="left">00000111</td>
+<td align="left">BEL</td>
+<td align="left">&#007;</td>
+<td align="left">Bell (响铃)</td>
+</tr>
+<tr>
+<td align="left">8</td>
+<td align="left">010</td>
+<td align="left">08</td>
+<td align="left">00001000</td>
+<td align="left">BS</td>
+<td align="left">&#008;</td>
+<td align="left">Back Space (退格)</td>
+</tr>
+<tr>
+<td align="left">9</td>
+<td align="left">011</td>
+<td align="left">09</td>
+<td align="left">00001001</td>
+<td align="left">HT</td>
+<td align="left">&#009;</td>
+<td align="left">Horizontal Tab (水平制表符)</td>
+</tr>
+<tr>
+<td align="left">10</td>
+<td align="left">012</td>
+<td align="left">0A</td>
+<td align="left">00001010</td>
+<td align="left">LF</td>
+<td align="left">&#010;</td>
+<td align="left">Line Feed (换行键)</td>
+</tr>
+<tr>
+<td align="left">11</td>
+<td align="left">013</td>
+<td align="left">0B</td>
+<td align="left">00001011</td>
+<td align="left">VT</td>
+<td align="left">&#011;</td>
+<td align="left">Vertical Tab (垂直制表符)</td>
+</tr>
+<tr>
+<td align="left">12</td>
+<td align="left">014</td>
+<td align="left">0C</td>
+<td align="left">00001100</td>
+<td align="left">FF</td>
+<td align="left">&#012;</td>
+<td align="left">Form Feed (换页键)</td>
+</tr>
+<tr>
+<td align="left">13</td>
+<td align="left">015</td>
+<td align="left">0D</td>
+<td align="left">00001101</td>
+<td align="left">CR</td>
+<td align="left">&#013;</td>
+<td align="left">Carriage Return (回车键)</td>
+</tr>
+<tr>
+<td align="left">14</td>
+<td align="left">016</td>
+<td align="left">0E</td>
+<td align="left">00001110</td>
+<td align="left">SO</td>
+<td align="left">&#014;</td>
+<td align="left">Shift Out / X-On (不用切换)</td>
+</tr>
+<tr>
+<td align="left">15</td>
+<td align="left">017</td>
+<td align="left">0F</td>
+<td align="left">00001111</td>
+<td align="left">SI</td>
+<td align="left">&#015;</td>
+<td align="left">Shift In / X-Off (启用切换)</td>
+</tr>
+<tr>
+<td align="left">16</td>
+<td align="left">020</td>
+<td align="left">10</td>
+<td align="left">00010000</td>
+<td align="left">DLE</td>
+<td align="left">&#016;</td>
+<td align="left">Data Line Escape (数据链路转义)</td>
+</tr>
+<tr>
+<td align="left">17</td>
+<td align="left">021</td>
+<td align="left">11</td>
+<td align="left">00010001</td>
+<td align="left">DC1</td>
+<td align="left">&#017;</td>
+<td align="left">Device Control 1 (设备控制1)</td>
+</tr>
+<tr>
+<td align="left">18</td>
+<td align="left">022</td>
+<td align="left">12</td>
+<td align="left">00010010</td>
+<td align="left">DC2</td>
+<td align="left">&#018;</td>
+<td align="left">Device Control 2 (设备控制2)</td>
+</tr>
+<tr>
+<td align="left">19</td>
+<td align="left">023</td>
+<td align="left">13</td>
+<td align="left">00010011</td>
+<td align="left">DC3</td>
+<td align="left">&#019;</td>
+<td align="left">Device Control 3 (设备控制3)</td>
+</tr>
+<tr>
+<td align="left">20</td>
+<td align="left">024</td>
+<td align="left">14</td>
+<td align="left">00010100</td>
+<td align="left">DC4</td>
+<td align="left">&#020;</td>
+<td align="left">Device Control 4 (设备控制4)</td>
+</tr>
+<tr>
+<td align="left">21</td>
+<td align="left">025</td>
+<td align="left">15</td>
+<td align="left">00010101</td>
+<td align="left">NAK</td>
+<td align="left">&#021;</td>
+<td align="left">Negative Acknowledgement (拒绝接收)</td>
+</tr>
+<tr>
+<td align="left">22</td>
+<td align="left">026</td>
+<td align="left">16</td>
+<td align="left">00010110</td>
+<td align="left">SYN</td>
+<td align="left">&#022;</td>
+<td align="left">Synchronous Idle (同步空闲)</td>
+</tr>
+<tr>
+<td align="left">23</td>
+<td align="left">027</td>
+<td align="left">17</td>
+<td align="left">00010111</td>
+<td align="left">ETB</td>
+<td align="left">&#023;</td>
+<td align="left">End of Transmit Block (传输块结束)</td>
+</tr>
+<tr>
+<td align="left">24</td>
+<td align="left">030</td>
+<td align="left">18</td>
+<td align="left">00011000</td>
+<td align="left">CAN</td>
+<td align="left">&#024;</td>
+<td align="left">Cancel (取消)</td>
+</tr>
+<tr>
+<td align="left">25</td>
+<td align="left">031</td>
+<td align="left">19</td>
+<td align="left">00011001</td>
+<td align="left">EM</td>
+<td align="left">&#025;</td>
+<td align="left">End of Medium (介质中断)</td>
+</tr>
+<tr>
+<td align="left">26</td>
+<td align="left">032</td>
+<td align="left">1A</td>
+<td align="left">00011010</td>
+<td align="left">SUB</td>
+<td align="left">&#026;</td>
+<td align="left">Substitute (替补)</td>
+</tr>
+<tr>
+<td align="left">27</td>
+<td align="left">033</td>
+<td align="left">1B</td>
+<td align="left">00011011</td>
+<td align="left">ESC</td>
+<td align="left">&#027;</td>
+<td align="left">Escape (溢出)</td>
+</tr>
+<tr>
+<td align="left">28</td>
+<td align="left">034</td>
+<td align="left">1C</td>
+<td align="left">00011100</td>
+<td align="left">FS</td>
+<td align="left">&#028;</td>
+<td align="left">File Separator (文件分割符)</td>
+</tr>
+<tr>
+<td align="left">29</td>
+<td align="left">035</td>
+<td align="left">1D</td>
+<td align="left">00011101</td>
+<td align="left">GS</td>
+<td align="left">&#029;</td>
+<td align="left">Group Separator (分组符)</td>
+</tr>
+<tr>
+<td align="left">30</td>
+<td align="left">036</td>
+<td align="left">1E</td>
+<td align="left">00011110</td>
+<td align="left">RS</td>
+<td align="left">&#030;</td>
+<td align="left">Record Separator (记录分离符)</td>
+</tr>
+<tr>
+<td align="left">31</td>
+<td align="left">037</td>
+<td align="left">1F</td>
+<td align="left">00011111</td>
+<td align="left">US</td>
+<td align="left">&#031;</td>
+<td align="left">Unit Separator (单元分隔符)</td>
+</tr>
+<tr>
+<td align="left">32</td>
+<td align="left">040</td>
+<td align="left">20</td>
+<td align="left">00100000</td>
+<td align="left"></td>
+<td align="left">&#32;</td>
+<td align="left">Space (空格)</td>
+</tr>
+<tr>
+<td align="left">33</td>
+<td align="left">041</td>
+<td align="left">21</td>
+<td align="left">00100001</td>
+<td align="left">!</td>
+<td align="left">&#33;</td>
+<td align="left">Exclamation mark</td>
+</tr>
+<tr>
+<td align="left">34</td>
+<td align="left">042</td>
+<td align="left">22</td>
+<td align="left">00100010</td>
+<td align="left">“</td>
+<td align="left">&#34;</td>
+<td align="left">Double quotes</td>
+</tr>
+<tr>
+<td align="left">35</td>
+<td align="left">043</td>
+<td align="left">23</td>
+<td align="left">00100011</td>
+<td align="left">#</td>
+<td align="left">&#35;</td>
+<td align="left">Number</td>
+</tr>
+<tr>
+<td align="left">36</td>
+<td align="left">044</td>
+<td align="left">24</td>
+<td align="left">00100100</td>
+<td align="left">$</td>
+<td align="left">&#36;</td>
+<td align="left">Dollar</td>
+</tr>
+<tr>
+<td align="left">37</td>
+<td align="left">045</td>
+<td align="left">25</td>
+<td align="left">00100101</td>
+<td align="left">%</td>
+<td align="left">&#37;</td>
+<td align="left">Procenttecken</td>
+</tr>
+<tr>
+<td align="left">38</td>
+<td align="left">046</td>
+<td align="left">26</td>
+<td align="left">00100110</td>
+<td align="left">&amp;</td>
+<td align="left">&#38;</td>
+<td align="left">Ampersand</td>
+</tr>
+<tr>
+<td align="left">39</td>
+<td align="left">047</td>
+<td align="left">27</td>
+<td align="left">00100111</td>
+<td align="left">‘</td>
+<td align="left">&#39;</td>
+<td align="left">Single quote</td>
+</tr>
+<tr>
+<td align="left">40</td>
+<td align="left">050</td>
+<td align="left">28</td>
+<td align="left">00101000</td>
+<td align="left">(</td>
+<td align="left">&#40;</td>
+<td align="left">Open parenthesis</td>
+</tr>
+<tr>
+<td align="left">41</td>
+<td align="left">051</td>
+<td align="left">29</td>
+<td align="left">00101001</td>
+<td align="left">)</td>
+<td align="left">&#41;</td>
+<td align="left">Close parenthesis</td>
+</tr>
+<tr>
+<td align="left">42</td>
+<td align="left">052</td>
+<td align="left">2A</td>
+<td align="left">00101010</td>
+<td align="left">*</td>
+<td align="left">&#42;</td>
+<td align="left">Asterisk</td>
+</tr>
+<tr>
+<td align="left">43</td>
+<td align="left">053</td>
+<td align="left">2B</td>
+<td align="left">00101011</td>
+<td align="left">+</td>
+<td align="left">&#43;</td>
+<td align="left">Plus</td>
+</tr>
+<tr>
+<td align="left">44</td>
+<td align="left">054</td>
+<td align="left">2C</td>
+<td align="left">00101100</td>
+<td align="left">,</td>
+<td align="left">&#44;</td>
+<td align="left">Comma</td>
+</tr>
+<tr>
+<td align="left">45</td>
+<td align="left">055</td>
+<td align="left">2D</td>
+<td align="left">00101101</td>
+<td align="left">-</td>
+<td align="left">&#45;</td>
+<td align="left">Hyphen</td>
+</tr>
+<tr>
+<td align="left">46</td>
+<td align="left">056</td>
+<td align="left">2E</td>
+<td align="left">00101110</td>
+<td align="left">.</td>
+<td align="left">&#46;</td>
+<td align="left">Period, dot or full stop</td>
+</tr>
+<tr>
+<td align="left">47</td>
+<td align="left">057</td>
+<td align="left">2F</td>
+<td align="left">00101111</td>
+<td align="left">/</td>
+<td align="left">&#47;</td>
+<td align="left">Slash or divide</td>
+</tr>
+<tr>
+<td align="left">48</td>
+<td align="left">060</td>
+<td align="left">30</td>
+<td align="left">00110000</td>
+<td align="left">0</td>
+<td align="left">&#48;</td>
+<td align="left">Zero</td>
+</tr>
+<tr>
+<td align="left">49</td>
+<td align="left">061</td>
+<td align="left">31</td>
+<td align="left">00110001</td>
+<td align="left">1</td>
+<td align="left">&#49;</td>
+<td align="left">One</td>
+</tr>
+<tr>
+<td align="left">50</td>
+<td align="left">062</td>
+<td align="left">32</td>
+<td align="left">00110010</td>
+<td align="left">2</td>
+<td align="left">&#50;</td>
+<td align="left">Two</td>
+</tr>
+<tr>
+<td align="left">51</td>
+<td align="left">063</td>
+<td align="left">33</td>
+<td align="left">00110011</td>
+<td align="left">3</td>
+<td align="left">&#51;</td>
+<td align="left">Three</td>
+</tr>
+<tr>
+<td align="left">52</td>
+<td align="left">064</td>
+<td align="left">34</td>
+<td align="left">00110100</td>
+<td align="left">4</td>
+<td align="left">&#52;</td>
+<td align="left">Four</td>
+</tr>
+<tr>
+<td align="left">53</td>
+<td align="left">065</td>
+<td align="left">35</td>
+<td align="left">00110101</td>
+<td align="left">5</td>
+<td align="left">&#53;</td>
+<td align="left">Five</td>
+</tr>
+<tr>
+<td align="left">54</td>
+<td align="left">066</td>
+<td align="left">36</td>
+<td align="left">00110110</td>
+<td align="left">6</td>
+<td align="left">&#54;</td>
+<td align="left">Six</td>
+</tr>
+<tr>
+<td align="left">55</td>
+<td align="left">067</td>
+<td align="left">37</td>
+<td align="left">00110111</td>
+<td align="left">7</td>
+<td align="left">&#55;</td>
+<td align="left">Seven</td>
+</tr>
+<tr>
+<td align="left">56</td>
+<td align="left">070</td>
+<td align="left">38</td>
+<td align="left">00111000</td>
+<td align="left">8</td>
+<td align="left">&#56;</td>
+<td align="left">Eight</td>
+</tr>
+<tr>
+<td align="left">57</td>
+<td align="left">071</td>
+<td align="left">39</td>
+<td align="left">00111001</td>
+<td align="left">9</td>
+<td align="left">&#57;</td>
+<td align="left">Nine</td>
+</tr>
+<tr>
+<td align="left">58</td>
+<td align="left">072</td>
+<td align="left">3A</td>
+<td align="left">00111010</td>
+<td align="left">:</td>
+<td align="left">&#58;</td>
+<td align="left">Colon</td>
+</tr>
+<tr>
+<td align="left">59</td>
+<td align="left">073</td>
+<td align="left">3B</td>
+<td align="left">00111011</td>
+<td align="left">;</td>
+<td align="left">&#59;</td>
+<td align="left">Semicolon</td>
+</tr>
+<tr>
+<td align="left">60</td>
+<td align="left">074</td>
+<td align="left">3C</td>
+<td align="left">00111100</td>
+<td align="left">&lt;</td>
+<td align="left">&#60;</td>
+<td align="left">Less than</td>
+</tr>
+<tr>
+<td align="left">61</td>
+<td align="left">075</td>
+<td align="left">3D</td>
+<td align="left">00111101</td>
+<td align="left">=</td>
+<td align="left">&#61;</td>
+<td align="left">Equals</td>
+</tr>
+<tr>
+<td align="left">62</td>
+<td align="left">076</td>
+<td align="left">3E</td>
+<td align="left">00111110</td>
+<td align="left">&gt;</td>
+<td align="left">&#62;</td>
+<td align="left">Greater than</td>
+</tr>
+<tr>
+<td align="left">63</td>
+<td align="left">077</td>
+<td align="left">3F</td>
+<td align="left">00111111</td>
+<td align="left">?</td>
+<td align="left">&#63;</td>
+<td align="left">Question mark</td>
+</tr>
+<tr>
+<td align="left">64</td>
+<td align="left">100</td>
+<td align="left">40</td>
+<td align="left">01000000</td>
+<td align="left">@</td>
+<td align="left">&#64;</td>
+<td align="left">At symbol</td>
+</tr>
+<tr>
+<td align="left">65</td>
+<td align="left">101</td>
+<td align="left">41</td>
+<td align="left">01000001</td>
+<td align="left">A</td>
+<td align="left">&#65;</td>
+<td align="left">Uppercase A</td>
+</tr>
+<tr>
+<td align="left">66</td>
+<td align="left">102</td>
+<td align="left">42</td>
+<td align="left">01000010</td>
+<td align="left">B</td>
+<td align="left">&#66;</td>
+<td align="left">Uppercase B</td>
+</tr>
+<tr>
+<td align="left">67</td>
+<td align="left">103</td>
+<td align="left">43</td>
+<td align="left">01000011</td>
+<td align="left">C</td>
+<td align="left">&#67;</td>
+<td align="left">Uppercase C</td>
+</tr>
+<tr>
+<td align="left">68</td>
+<td align="left">104</td>
+<td align="left">44</td>
+<td align="left">01000100</td>
+<td align="left">D</td>
+<td align="left">&#68;</td>
+<td align="left">Uppercase D</td>
+</tr>
+<tr>
+<td align="left">69</td>
+<td align="left">105</td>
+<td align="left">45</td>
+<td align="left">01000101</td>
+<td align="left">E</td>
+<td align="left">&#69;</td>
+<td align="left">Uppercase E</td>
+</tr>
+<tr>
+<td align="left">70</td>
+<td align="left">106</td>
+<td align="left">46</td>
+<td align="left">01000110</td>
+<td align="left">F</td>
+<td align="left">&#70;</td>
+<td align="left">Uppercase F</td>
+</tr>
+<tr>
+<td align="left">71</td>
+<td align="left">107</td>
+<td align="left">47</td>
+<td align="left">01000111</td>
+<td align="left">G</td>
+<td align="left">&#71;</td>
+<td align="left">Uppercase G</td>
+</tr>
+<tr>
+<td align="left">72</td>
+<td align="left">110</td>
+<td align="left">48</td>
+<td align="left">01001000</td>
+<td align="left">H</td>
+<td align="left">&#72;</td>
+<td align="left">Uppercase H</td>
+</tr>
+<tr>
+<td align="left">73</td>
+<td align="left">111</td>
+<td align="left">49</td>
+<td align="left">01001001</td>
+<td align="left">I</td>
+<td align="left">&#73;</td>
+<td align="left">Uppercase I</td>
+</tr>
+<tr>
+<td align="left">74</td>
+<td align="left">112</td>
+<td align="left">4A</td>
+<td align="left">01001010</td>
+<td align="left">J</td>
+<td align="left">&#74;</td>
+<td align="left">Uppercase J</td>
+</tr>
+<tr>
+<td align="left">75</td>
+<td align="left">113</td>
+<td align="left">4B</td>
+<td align="left">01001011</td>
+<td align="left">K</td>
+<td align="left">&#75;</td>
+<td align="left">Uppercase K</td>
+</tr>
+<tr>
+<td align="left">76</td>
+<td align="left">114</td>
+<td align="left">4C</td>
+<td align="left">01001100</td>
+<td align="left">L</td>
+<td align="left">&#76;</td>
+<td align="left">Uppercase L</td>
+</tr>
+<tr>
+<td align="left">77</td>
+<td align="left">115</td>
+<td align="left">4D</td>
+<td align="left">01001101</td>
+<td align="left">M</td>
+<td align="left">&#77;</td>
+<td align="left">Uppercase M</td>
+</tr>
+<tr>
+<td align="left">78</td>
+<td align="left">116</td>
+<td align="left">4E</td>
+<td align="left">01001110</td>
+<td align="left">N</td>
+<td align="left">&#78;</td>
+<td align="left">Uppercase N</td>
+</tr>
+<tr>
+<td align="left">79</td>
+<td align="left">117</td>
+<td align="left">4F</td>
+<td align="left">01001111</td>
+<td align="left">O</td>
+<td align="left">&#79;</td>
+<td align="left">Uppercase O</td>
+</tr>
+<tr>
+<td align="left">80</td>
+<td align="left">120</td>
+<td align="left">50</td>
+<td align="left">01010000</td>
+<td align="left">P</td>
+<td align="left">&#80;</td>
+<td align="left">Uppercase P</td>
+</tr>
+<tr>
+<td align="left">81</td>
+<td align="left">121</td>
+<td align="left">51</td>
+<td align="left">01010001</td>
+<td align="left">Q</td>
+<td align="left">&#81;</td>
+<td align="left">Uppercase Q</td>
+</tr>
+<tr>
+<td align="left">82</td>
+<td align="left">122</td>
+<td align="left">52</td>
+<td align="left">01010010</td>
+<td align="left">R</td>
+<td align="left">&#82;</td>
+<td align="left">Uppercase R</td>
+</tr>
+<tr>
+<td align="left">83</td>
+<td align="left">123</td>
+<td align="left">53</td>
+<td align="left">01010011</td>
+<td align="left">S</td>
+<td align="left">&#83;</td>
+<td align="left">Uppercase S</td>
+</tr>
+<tr>
+<td align="left">84</td>
+<td align="left">124</td>
+<td align="left">54</td>
+<td align="left">01010100</td>
+<td align="left">T</td>
+<td align="left">&#84;</td>
+<td align="left">Uppercase T</td>
+</tr>
+<tr>
+<td align="left">85</td>
+<td align="left">125</td>
+<td align="left">55</td>
+<td align="left">01010101</td>
+<td align="left">U</td>
+<td align="left">&#85;</td>
+<td align="left">Uppercase U</td>
+</tr>
+<tr>
+<td align="left">86</td>
+<td align="left">126</td>
+<td align="left">56</td>
+<td align="left">01010110</td>
+<td align="left">V</td>
+<td align="left">&#86;</td>
+<td align="left">Uppercase V</td>
+</tr>
+<tr>
+<td align="left">87</td>
+<td align="left">127</td>
+<td align="left">57</td>
+<td align="left">01010111</td>
+<td align="left">W</td>
+<td align="left">&#87;</td>
+<td align="left">Uppercase W</td>
+</tr>
+<tr>
+<td align="left">88</td>
+<td align="left">130</td>
+<td align="left">58</td>
+<td align="left">01011000</td>
+<td align="left">X</td>
+<td align="left">&#88;</td>
+<td align="left">Uppercase X</td>
+</tr>
+<tr>
+<td align="left">89</td>
+<td align="left">131</td>
+<td align="left">59</td>
+<td align="left">01011001</td>
+<td align="left">Y</td>
+<td align="left">&#89;</td>
+<td align="left">Uppercase Y</td>
+</tr>
+<tr>
+<td align="left">90</td>
+<td align="left">132</td>
+<td align="left">5A</td>
+<td align="left">01011010</td>
+<td align="left">Z</td>
+<td align="left">&#90;</td>
+<td align="left">Uppercase Z</td>
+</tr>
+<tr>
+<td align="left">91</td>
+<td align="left">133</td>
+<td align="left">5B</td>
+<td align="left">01011011</td>
+<td align="left">[</td>
+<td align="left">&#91;</td>
+<td align="left">Opening bracket</td>
+</tr>
+<tr>
+<td align="left">92</td>
+<td align="left">134</td>
+<td align="left">5C</td>
+<td align="left">01011100</td>
+<td align="left">\</td>
+<td align="left">&#92;</td>
+<td align="left">Backslash</td>
+</tr>
+<tr>
+<td align="left">93</td>
+<td align="left">135</td>
+<td align="left">5D</td>
+<td align="left">01011101</td>
+<td align="left">]</td>
+<td align="left">&#93;</td>
+<td align="left">Closing bracket</td>
+</tr>
+<tr>
+<td align="left">94</td>
+<td align="left">136</td>
+<td align="left">5E</td>
+<td align="left">01011110</td>
+<td align="left">^</td>
+<td align="left">&#94;</td>
+<td align="left">Caret - circumflex</td>
+</tr>
+<tr>
+<td align="left">95</td>
+<td align="left">137</td>
+<td align="left">5F</td>
+<td align="left">01011111</td>
+<td align="left">_</td>
+<td align="left">&#95;</td>
+<td align="left">Underscore</td>
+</tr>
+<tr>
+<td align="left">96</td>
+<td align="left">140</td>
+<td align="left">60</td>
+<td align="left">01100000</td>
+<td align="left">`</td>
+<td align="left">&#96;</td>
+<td align="left">Grave accent</td>
+</tr>
+<tr>
+<td align="left">97</td>
+<td align="left">141</td>
+<td align="left">61</td>
+<td align="left">01100001</td>
+<td align="left">a</td>
+<td align="left">&#97;</td>
+<td align="left">Lowercase a</td>
+</tr>
+<tr>
+<td align="left">98</td>
+<td align="left">142</td>
+<td align="left">62</td>
+<td align="left">01100010</td>
+<td align="left">b</td>
+<td align="left">&#98;</td>
+<td align="left">Lowercase b</td>
+</tr>
+<tr>
+<td align="left">99</td>
+<td align="left">143</td>
+<td align="left">63</td>
+<td align="left">01100011</td>
+<td align="left">c</td>
+<td align="left">&#99;</td>
+<td align="left">Lowercase c</td>
+</tr>
+<tr>
+<td align="left">100</td>
+<td align="left">144</td>
+<td align="left">64</td>
+<td align="left">01100100</td>
+<td align="left">d</td>
+<td align="left">&#100;</td>
+<td align="left">Lowercase d</td>
+</tr>
+<tr>
+<td align="left">101</td>
+<td align="left">145</td>
+<td align="left">65</td>
+<td align="left">01100101</td>
+<td align="left">e</td>
+<td align="left">&#101;</td>
+<td align="left">Lowercase e</td>
+</tr>
+<tr>
+<td align="left">102</td>
+<td align="left">146</td>
+<td align="left">66</td>
+<td align="left">01100110</td>
+<td align="left">f</td>
+<td align="left">&#102;</td>
+<td align="left">Lowercase f</td>
+</tr>
+<tr>
+<td align="left">103</td>
+<td align="left">147</td>
+<td align="left">67</td>
+<td align="left">01100111</td>
+<td align="left">g</td>
+<td align="left">&#103;</td>
+<td align="left">Lowercase g</td>
+</tr>
+<tr>
+<td align="left">104</td>
+<td align="left">150</td>
+<td align="left">68</td>
+<td align="left">01101000</td>
+<td align="left">h</td>
+<td align="left">&#104;</td>
+<td align="left">Lowercase h</td>
+</tr>
+<tr>
+<td align="left">105</td>
+<td align="left">151</td>
+<td align="left">69</td>
+<td align="left">01101001</td>
+<td align="left">i</td>
+<td align="left">&#105;</td>
+<td align="left">Lowercase i</td>
+</tr>
+<tr>
+<td align="left">106</td>
+<td align="left">152</td>
+<td align="left">6A</td>
+<td align="left">01101010</td>
+<td align="left">j</td>
+<td align="left">&#106;</td>
+<td align="left">Lowercase j</td>
+</tr>
+<tr>
+<td align="left">107</td>
+<td align="left">153</td>
+<td align="left">6B</td>
+<td align="left">01101011</td>
+<td align="left">k</td>
+<td align="left">&#107;</td>
+<td align="left">Lowercase k</td>
+</tr>
+<tr>
+<td align="left">108</td>
+<td align="left">154</td>
+<td align="left">6C</td>
+<td align="left">01101100</td>
+<td align="left">l</td>
+<td align="left">&#108;</td>
+<td align="left">Lowercase l</td>
+</tr>
+<tr>
+<td align="left">109</td>
+<td align="left">155</td>
+<td align="left">6D</td>
+<td align="left">01101101</td>
+<td align="left">m</td>
+<td align="left">&#109;</td>
+<td align="left">Lowercase m</td>
+</tr>
+<tr>
+<td align="left">110</td>
+<td align="left">156</td>
+<td align="left">6E</td>
+<td align="left">01101110</td>
+<td align="left">n</td>
+<td align="left">&#110;</td>
+<td align="left">Lowercase n</td>
+</tr>
+<tr>
+<td align="left">111</td>
+<td align="left">157</td>
+<td align="left">6F</td>
+<td align="left">01101111</td>
+<td align="left">o</td>
+<td align="left">&#111;</td>
+<td align="left">Lowercase o</td>
+</tr>
+<tr>
+<td align="left">112</td>
+<td align="left">160</td>
+<td align="left">70</td>
+<td align="left">01110000</td>
+<td align="left">p</td>
+<td align="left">&#112;</td>
+<td align="left">Lowercase p</td>
+</tr>
+<tr>
+<td align="left">113</td>
+<td align="left">161</td>
+<td align="left">71</td>
+<td align="left">01110001</td>
+<td align="left">q</td>
+<td align="left">&#113;</td>
+<td align="left">Lowercase q</td>
+</tr>
+<tr>
+<td align="left">114</td>
+<td align="left">162</td>
+<td align="left">72</td>
+<td align="left">01110010</td>
+<td align="left">r</td>
+<td align="left">&#114;</td>
+<td align="left">Lowercase r</td>
+</tr>
+<tr>
+<td align="left">115</td>
+<td align="left">163</td>
+<td align="left">73</td>
+<td align="left">01110011</td>
+<td align="left">s</td>
+<td align="left">&#115;</td>
+<td align="left">Lowercase s</td>
+</tr>
+<tr>
+<td align="left">116</td>
+<td align="left">164</td>
+<td align="left">74</td>
+<td align="left">01110100</td>
+<td align="left">t</td>
+<td align="left">&#116;</td>
+<td align="left">Lowercase t</td>
+</tr>
+<tr>
+<td align="left">117</td>
+<td align="left">165</td>
+<td align="left">75</td>
+<td align="left">01110101</td>
+<td align="left">u</td>
+<td align="left">&#117;</td>
+<td align="left">Lowercase u</td>
+</tr>
+<tr>
+<td align="left">118</td>
+<td align="left">166</td>
+<td align="left">76</td>
+<td align="left">01110110</td>
+<td align="left">v</td>
+<td align="left">&#118;</td>
+<td align="left">Lowercase v</td>
+</tr>
+<tr>
+<td align="left">119</td>
+<td align="left">167</td>
+<td align="left">77</td>
+<td align="left">01110111</td>
+<td align="left">w</td>
+<td align="left">&#119;</td>
+<td align="left">Lowercase w</td>
+</tr>
+<tr>
+<td align="left">120</td>
+<td align="left">170</td>
+<td align="left">78</td>
+<td align="left">01111000</td>
+<td align="left">x</td>
+<td align="left">&#120;</td>
+<td align="left">Lowercase x</td>
+</tr>
+<tr>
+<td align="left">121</td>
+<td align="left">171</td>
+<td align="left">79</td>
+<td align="left">01111001</td>
+<td align="left">y</td>
+<td align="left">&#121;</td>
+<td align="left">Lowercase y</td>
+</tr>
+<tr>
+<td align="left">122</td>
+<td align="left">172</td>
+<td align="left">7A</td>
+<td align="left">01111010</td>
+<td align="left">z</td>
+<td align="left">&#122;</td>
+<td align="left">Lowercase z</td>
+</tr>
+<tr>
+<td align="left">123</td>
+<td align="left">173</td>
+<td align="left">7B</td>
+<td align="left">01111011</td>
+<td align="left">{</td>
+<td align="left">&#123;</td>
+<td align="left">Opening brace</td>
+</tr>
+<tr>
+<td align="left">124</td>
+<td align="left">174</td>
+<td align="left">7C</td>
+<td align="left">01111100</td>
+<td align="left">|</td>
+<td align="left">&#124;</td>
+<td align="left">Vertical bar</td>
+</tr>
+<tr>
+<td align="left">125</td>
+<td align="left">175</td>
+<td align="left">7D</td>
+<td align="left">01111101</td>
+<td align="left">}</td>
+<td align="left">&#125;</td>
+<td align="left">Closing brace</td>
+</tr>
+<tr>
+<td align="left">126</td>
+<td align="left">176</td>
+<td align="left">7E</td>
+<td align="left">01111110</td>
+<td align="left">~</td>
+<td align="left">&#126;</td>
+<td align="left">Equivalency sign (tilde)</td>
+</tr>
+<tr>
+<td align="left">127</td>
+<td align="left">177</td>
+<td align="left">7F</td>
+<td align="left">01111111</td>
+<td align="left"></td>
+<td align="left">&#127;</td>
+<td align="left">Delete</td>
+</tr>
+<tr>
+<td align="left">128</td>
+<td align="left">200</td>
+<td align="left">80</td>
+<td align="left">10000000</td>
+<td align="left">€</td>
+<td align="left">&#128;</td>
+<td align="left">Euro sign</td>
+</tr>
+<tr>
+<td align="left">129</td>
+<td align="left">201</td>
+<td align="left">81</td>
+<td align="left">10000001</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">130</td>
+<td align="left">202</td>
+<td align="left">82</td>
+<td align="left">10000010</td>
+<td align="left">‚</td>
+<td align="left">&#130;</td>
+<td align="left">Single low-9 quotation mark</td>
+</tr>
+<tr>
+<td align="left">131</td>
+<td align="left">203</td>
+<td align="left">83</td>
+<td align="left">10000011</td>
+<td align="left">ƒ</td>
+<td align="left">&#131;</td>
+<td align="left">Latin small letter f with hook</td>
+</tr>
+<tr>
+<td align="left">132</td>
+<td align="left">204</td>
+<td align="left">84</td>
+<td align="left">10000100</td>
+<td align="left">„</td>
+<td align="left">&#132;</td>
+<td align="left">Double low-9 quotation mark</td>
+</tr>
+<tr>
+<td align="left">133</td>
+<td align="left">205</td>
+<td align="left">85</td>
+<td align="left">10000101</td>
+<td align="left">…</td>
+<td align="left">&#133;</td>
+<td align="left">Horizontal ellipsis</td>
+</tr>
+<tr>
+<td align="left">134</td>
+<td align="left">206</td>
+<td align="left">86</td>
+<td align="left">10000110</td>
+<td align="left">†</td>
+<td align="left">&#134;</td>
+<td align="left">Dagger</td>
+</tr>
+<tr>
+<td align="left">135</td>
+<td align="left">207</td>
+<td align="left">87</td>
+<td align="left">10000111</td>
+<td align="left">‡</td>
+<td align="left">&#135;</td>
+<td align="left">Double dagger</td>
+</tr>
+<tr>
+<td align="left">136</td>
+<td align="left">210</td>
+<td align="left">88</td>
+<td align="left">10001000</td>
+<td align="left">ˆ</td>
+<td align="left">&#136;</td>
+<td align="left">Modifier letter circumflex accent</td>
+</tr>
+<tr>
+<td align="left">137</td>
+<td align="left">211</td>
+<td align="left">89</td>
+<td align="left">10001001</td>
+<td align="left">‰</td>
+<td align="left">&#137;</td>
+<td align="left">Per mille sign</td>
+</tr>
+<tr>
+<td align="left">138</td>
+<td align="left">212</td>
+<td align="left">8A</td>
+<td align="left">10001010</td>
+<td align="left">Š</td>
+<td align="left">&#138;</td>
+<td align="left">Latin capital letter S with caron</td>
+</tr>
+<tr>
+<td align="left">139</td>
+<td align="left">213</td>
+<td align="left">8B</td>
+<td align="left">10001011</td>
+<td align="left">‹</td>
+<td align="left">&#139;</td>
+<td align="left">Single left-pointing angle quotation</td>
+</tr>
+<tr>
+<td align="left">140</td>
+<td align="left">214</td>
+<td align="left">8C</td>
+<td align="left">10001100</td>
+<td align="left">Œ</td>
+<td align="left">&#140;</td>
+<td align="left">Latin capital ligature OE</td>
+</tr>
+<tr>
+<td align="left">141</td>
+<td align="left">215</td>
+<td align="left">8D</td>
+<td align="left">10001101</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">142</td>
+<td align="left">216</td>
+<td align="left">8E</td>
+<td align="left">10001110</td>
+<td align="left">Ž</td>
+<td align="left">&#142;</td>
+<td align="left">Latin capital letter Z with caron</td>
+</tr>
+<tr>
+<td align="left">143</td>
+<td align="left">217</td>
+<td align="left">8F</td>
+<td align="left">10001111</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">144</td>
+<td align="left">220</td>
+<td align="left">90</td>
+<td align="left">10010000</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">145</td>
+<td align="left">221</td>
+<td align="left">91</td>
+<td align="left">10010001</td>
+<td align="left">‘</td>
+<td align="left">&#145;</td>
+<td align="left">Left single quotation mark</td>
+</tr>
+<tr>
+<td align="left">146</td>
+<td align="left">222</td>
+<td align="left">92</td>
+<td align="left">10010010</td>
+<td align="left">’</td>
+<td align="left">&#146;</td>
+<td align="left">Right single quotation mark</td>
+</tr>
+<tr>
+<td align="left">147</td>
+<td align="left">223</td>
+<td align="left">93</td>
+<td align="left">10010011</td>
+<td align="left">“</td>
+<td align="left">&#147;</td>
+<td align="left">Left double quotation mark</td>
+</tr>
+<tr>
+<td align="left">148</td>
+<td align="left">224</td>
+<td align="left">94</td>
+<td align="left">10010100</td>
+<td align="left">”</td>
+<td align="left">&#148;</td>
+<td align="left">Right double quotation mark</td>
+</tr>
+<tr>
+<td align="left">149</td>
+<td align="left">225</td>
+<td align="left">95</td>
+<td align="left">10010101</td>
+<td align="left">•</td>
+<td align="left">&#149;</td>
+<td align="left">Bullet</td>
+</tr>
+<tr>
+<td align="left">150</td>
+<td align="left">226</td>
+<td align="left">96</td>
+<td align="left">10010110</td>
+<td align="left">–</td>
+<td align="left">&#150;</td>
+<td align="left">En dash</td>
+</tr>
+<tr>
+<td align="left">151</td>
+<td align="left">227</td>
+<td align="left">97</td>
+<td align="left">10010111</td>
+<td align="left">—</td>
+<td align="left">&#151;</td>
+<td align="left">Em dash</td>
+</tr>
+<tr>
+<td align="left">152</td>
+<td align="left">230</td>
+<td align="left">98</td>
+<td align="left">10011000</td>
+<td align="left">˜</td>
+<td align="left">&#152;</td>
+<td align="left">Small tilde</td>
+</tr>
+<tr>
+<td align="left">153</td>
+<td align="left">231</td>
+<td align="left">99</td>
+<td align="left">10011001</td>
+<td align="left">™</td>
+<td align="left">&#153;</td>
+<td align="left">Trade mark sign</td>
+</tr>
+<tr>
+<td align="left">154</td>
+<td align="left">232</td>
+<td align="left">9A</td>
+<td align="left">10011010</td>
+<td align="left">š</td>
+<td align="left">&#154;</td>
+<td align="left">Latin small letter S with caron</td>
+</tr>
+<tr>
+<td align="left">155</td>
+<td align="left">233</td>
+<td align="left">9B</td>
+<td align="left">10011011</td>
+<td align="left">›</td>
+<td align="left">&#155;</td>
+<td align="left">Single right-pointing angle quotation mark</td>
+</tr>
+<tr>
+<td align="left">156</td>
+<td align="left">234</td>
+<td align="left">9C</td>
+<td align="left">10011100</td>
+<td align="left">œ</td>
+<td align="left">&#156;</td>
+<td align="left">Latin small ligature oe</td>
+</tr>
+<tr>
+<td align="left">157</td>
+<td align="left">235</td>
+<td align="left">9D</td>
+<td align="left">10011101</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">158</td>
+<td align="left">236</td>
+<td align="left">9E</td>
+<td align="left">10011110</td>
+<td align="left">ž</td>
+<td align="left">&#158;</td>
+<td align="left">Latin small letter z with caron</td>
+</tr>
+<tr>
+<td align="left">159</td>
+<td align="left">237</td>
+<td align="left">9F</td>
+<td align="left">10011111</td>
+<td align="left">Ÿ</td>
+<td align="left">&#159;</td>
+<td align="left">Latin capital letter Y with diaeresis</td>
+</tr>
+<tr>
+<td align="left">160</td>
+<td align="left">240</td>
+<td align="left">A0</td>
+<td align="left">10100000</td>
+<td align="left"></td>
+<td align="left">&#160;</td>
+<td align="left">Non-breaking space</td>
+</tr>
+<tr>
+<td align="left">161</td>
+<td align="left">241</td>
+<td align="left">A1</td>
+<td align="left">10100001</td>
+<td align="left">¡</td>
+<td align="left">&#161;</td>
+<td align="left">Inverted exclamation mark</td>
+</tr>
+<tr>
+<td align="left">162</td>
+<td align="left">242</td>
+<td align="left">A2</td>
+<td align="left">10100010</td>
+<td align="left">¢</td>
+<td align="left">&#162;</td>
+<td align="left">Cent sign</td>
+</tr>
+<tr>
+<td align="left">163</td>
+<td align="left">243</td>
+<td align="left">A3</td>
+<td align="left">10100011</td>
+<td align="left">£</td>
+<td align="left">&#163;</td>
+<td align="left">Pound sign</td>
+</tr>
+<tr>
+<td align="left">164</td>
+<td align="left">244</td>
+<td align="left">A4</td>
+<td align="left">10100100</td>
+<td align="left">¤</td>
+<td align="left">&#164;</td>
+<td align="left">Currency sign</td>
+</tr>
+<tr>
+<td align="left">165</td>
+<td align="left">245</td>
+<td align="left">A5</td>
+<td align="left">10100101</td>
+<td align="left">¥</td>
+<td align="left">&#165;</td>
+<td align="left">Yen sign</td>
+</tr>
+<tr>
+<td align="left">166</td>
+<td align="left">246</td>
+<td align="left">A6</td>
+<td align="left">10100110</td>
+<td align="left">¦</td>
+<td align="left">&#166;</td>
+<td align="left">Pipe, Broken vertical bar</td>
+</tr>
+<tr>
+<td align="left">167</td>
+<td align="left">247</td>
+<td align="left">A7</td>
+<td align="left">10100111</td>
+<td align="left">§</td>
+<td align="left">&#167;</td>
+<td align="left">Section sign</td>
+</tr>
+<tr>
+<td align="left">168</td>
+<td align="left">250</td>
+<td align="left">A8</td>
+<td align="left">10101000</td>
+<td align="left">¨</td>
+<td align="left">&#168;</td>
+<td align="left">Spacing diaeresis - umlaut</td>
+</tr>
+<tr>
+<td align="left">169</td>
+<td align="left">251</td>
+<td align="left">A9</td>
+<td align="left">10101001</td>
+<td align="left">©</td>
+<td align="left">&#169;</td>
+<td align="left">Copyright sign</td>
+</tr>
+<tr>
+<td align="left">170</td>
+<td align="left">252</td>
+<td align="left">AA</td>
+<td align="left">10101010</td>
+<td align="left">ª</td>
+<td align="left">&#170;</td>
+<td align="left">Feminine ordinal indicator</td>
+</tr>
+<tr>
+<td align="left">171</td>
+<td align="left">253</td>
+<td align="left">AB</td>
+<td align="left">10101011</td>
+<td align="left">«</td>
+<td align="left">&#171;</td>
+<td align="left">Left double angle quotes</td>
+</tr>
+<tr>
+<td align="left">172</td>
+<td align="left">254</td>
+<td align="left">AC</td>
+<td align="left">10101100</td>
+<td align="left">¬</td>
+<td align="left">&#172;</td>
+<td align="left">Not sign</td>
+</tr>
+<tr>
+<td align="left">173</td>
+<td align="left">255</td>
+<td align="left">AD</td>
+<td align="left">10101101</td>
+<td align="left">­</td>
+<td align="left">&#173;</td>
+<td align="left">Soft hyphen</td>
+</tr>
+<tr>
+<td align="left">174</td>
+<td align="left">256</td>
+<td align="left">AE</td>
+<td align="left">10101110</td>
+<td align="left">®</td>
+<td align="left">&#174;</td>
+<td align="left">Registered trade mark sign</td>
+</tr>
+<tr>
+<td align="left">175</td>
+<td align="left">257</td>
+<td align="left">AF</td>
+<td align="left">10101111</td>
+<td align="left">¯</td>
+<td align="left">&#175;</td>
+<td align="left">Spacing macron - overline</td>
+</tr>
+<tr>
+<td align="left">176</td>
+<td align="left">260</td>
+<td align="left">B0</td>
+<td align="left">10110000</td>
+<td align="left">°</td>
+<td align="left">&#176;</td>
+<td align="left">Degree sign</td>
+</tr>
+<tr>
+<td align="left">177</td>
+<td align="left">261</td>
+<td align="left">B1</td>
+<td align="left">10110001</td>
+<td align="left">±</td>
+<td align="left">&#177;</td>
+<td align="left">Plus-or-minus sign</td>
+</tr>
+<tr>
+<td align="left">178</td>
+<td align="left">262</td>
+<td align="left">B2</td>
+<td align="left">10110010</td>
+<td align="left">²</td>
+<td align="left">&#178;</td>
+<td align="left">Superscript two - squared</td>
+</tr>
+<tr>
+<td align="left">179</td>
+<td align="left">263</td>
+<td align="left">B3</td>
+<td align="left">10110011</td>
+<td align="left">³</td>
+<td align="left">&#179;</td>
+<td align="left">Superscript three - cubed</td>
+</tr>
+<tr>
+<td align="left">180</td>
+<td align="left">264</td>
+<td align="left">B4</td>
+<td align="left">10110100</td>
+<td align="left">´</td>
+<td align="left">&#180;</td>
+<td align="left">Acute accent - spacing acute</td>
+</tr>
+<tr>
+<td align="left">181</td>
+<td align="left">265</td>
+<td align="left">B5</td>
+<td align="left">10110101</td>
+<td align="left">µ</td>
+<td align="left">&#181;</td>
+<td align="left">Micro sign</td>
+</tr>
+<tr>
+<td align="left">182</td>
+<td align="left">266</td>
+<td align="left">B6</td>
+<td align="left">10110110</td>
+<td align="left">¶</td>
+<td align="left">&#182;</td>
+<td align="left">Pilcrow sign - paragraph sign</td>
+</tr>
+<tr>
+<td align="left">183</td>
+<td align="left">267</td>
+<td align="left">B7</td>
+<td align="left">10110111</td>
+<td align="left">·</td>
+<td align="left">&#183;</td>
+<td align="left">Middle dot - Georgian comma</td>
+</tr>
+<tr>
+<td align="left">184</td>
+<td align="left">270</td>
+<td align="left">B8</td>
+<td align="left">10111000</td>
+<td align="left">¸</td>
+<td align="left">&#184;</td>
+<td align="left">Spacing cedilla</td>
+</tr>
+<tr>
+<td align="left">185</td>
+<td align="left">271</td>
+<td align="left">B9</td>
+<td align="left">10111001</td>
+<td align="left">¹</td>
+<td align="left">&#185;</td>
+<td align="left">Superscript one</td>
+</tr>
+<tr>
+<td align="left">186</td>
+<td align="left">272</td>
+<td align="left">BA</td>
+<td align="left">10111010</td>
+<td align="left">º</td>
+<td align="left">&#186;</td>
+<td align="left">Masculine ordinal indicator</td>
+</tr>
+<tr>
+<td align="left">187</td>
+<td align="left">273</td>
+<td align="left">BB</td>
+<td align="left">10111011</td>
+<td align="left">»</td>
+<td align="left">&#187;</td>
+<td align="left">Right double angle quotes</td>
+</tr>
+<tr>
+<td align="left">188</td>
+<td align="left">274</td>
+<td align="left">BC</td>
+<td align="left">10111100</td>
+<td align="left">¼</td>
+<td align="left">&#188;</td>
+<td align="left">Fraction one quarter</td>
+</tr>
+<tr>
+<td align="left">189</td>
+<td align="left">275</td>
+<td align="left">BD</td>
+<td align="left">10111101</td>
+<td align="left">½</td>
+<td align="left">&#189;</td>
+<td align="left">Fraction one half</td>
+</tr>
+<tr>
+<td align="left">190</td>
+<td align="left">276</td>
+<td align="left">BE</td>
+<td align="left">10111110</td>
+<td align="left">¾</td>
+<td align="left">&#190;</td>
+<td align="left">Fraction three quarters</td>
+</tr>
+<tr>
+<td align="left">191</td>
+<td align="left">277</td>
+<td align="left">BF</td>
+<td align="left">10111111</td>
+<td align="left">¿</td>
+<td align="left">&#191;</td>
+<td align="left">Inverted question mark</td>
+</tr>
+<tr>
+<td align="left">192</td>
+<td align="left">300</td>
+<td align="left">C0</td>
+<td align="left">11000000</td>
+<td align="left">À</td>
+<td align="left">&#192;</td>
+<td align="left">Latin capital letter A with grave</td>
+</tr>
+<tr>
+<td align="left">193</td>
+<td align="left">301</td>
+<td align="left">C1</td>
+<td align="left">11000001</td>
+<td align="left">Á</td>
+<td align="left">&#193;</td>
+<td align="left">Latin capital letter A with acute</td>
+</tr>
+<tr>
+<td align="left">194</td>
+<td align="left">302</td>
+<td align="left">C2</td>
+<td align="left">11000010</td>
+<td align="left">Â</td>
+<td align="left">&#194;</td>
+<td align="left">Latin capital letter A with circumflex</td>
+</tr>
+<tr>
+<td align="left">195</td>
+<td align="left">303</td>
+<td align="left">C3</td>
+<td align="left">11000011</td>
+<td align="left">Ã</td>
+<td align="left">&#195;</td>
+<td align="left">Latin capital letter A with tilde</td>
+</tr>
+<tr>
+<td align="left">196</td>
+<td align="left">304</td>
+<td align="left">C4</td>
+<td align="left">11000100</td>
+<td align="left">Ä</td>
+<td align="left">&#196;</td>
+<td align="left">Latin capital letter A with diaeresis</td>
+</tr>
+<tr>
+<td align="left">197</td>
+<td align="left">305</td>
+<td align="left">C5</td>
+<td align="left">11000101</td>
+<td align="left">Å</td>
+<td align="left">&#197;</td>
+<td align="left">Latin capital letter A with ring above</td>
+</tr>
+<tr>
+<td align="left">198</td>
+<td align="left">306</td>
+<td align="left">C6</td>
+<td align="left">11000110</td>
+<td align="left">Æ</td>
+<td align="left">&#198;</td>
+<td align="left">Latin capital letter AE</td>
+</tr>
+<tr>
+<td align="left">199</td>
+<td align="left">307</td>
+<td align="left">C7</td>
+<td align="left">11000111</td>
+<td align="left">Ç</td>
+<td align="left">&#199;</td>
+<td align="left">Latin capital letter C with cedilla</td>
+</tr>
+<tr>
+<td align="left">200</td>
+<td align="left">310</td>
+<td align="left">C8</td>
+<td align="left">11001000</td>
+<td align="left">È</td>
+<td align="left">&#200;</td>
+<td align="left">Latin capital letter E with grave</td>
+</tr>
+<tr>
+<td align="left">201</td>
+<td align="left">311</td>
+<td align="left">C9</td>
+<td align="left">11001001</td>
+<td align="left">É</td>
+<td align="left">&#201;</td>
+<td align="left">Latin capital letter E with acute</td>
+</tr>
+<tr>
+<td align="left">202</td>
+<td align="left">312</td>
+<td align="left">CA</td>
+<td align="left">11001010</td>
+<td align="left">Ê</td>
+<td align="left">&#202;</td>
+<td align="left">Latin capital letter E with circumflex</td>
+</tr>
+<tr>
+<td align="left">203</td>
+<td align="left">313</td>
+<td align="left">CB</td>
+<td align="left">11001011</td>
+<td align="left">Ë</td>
+<td align="left">&#203;</td>
+<td align="left">Latin capital letter E with diaeresis</td>
+</tr>
+<tr>
+<td align="left">204</td>
+<td align="left">314</td>
+<td align="left">CC</td>
+<td align="left">11001100</td>
+<td align="left">Ì</td>
+<td align="left">&#204;</td>
+<td align="left">Latin capital letter I with grave</td>
+</tr>
+<tr>
+<td align="left">205</td>
+<td align="left">315</td>
+<td align="left">CD</td>
+<td align="left">11001101</td>
+<td align="left">Í</td>
+<td align="left">&#205;</td>
+<td align="left">Latin capital letter I with acute</td>
+</tr>
+<tr>
+<td align="left">206</td>
+<td align="left">316</td>
+<td align="left">CE</td>
+<td align="left">11001110</td>
+<td align="left">Î</td>
+<td align="left">&#206;</td>
+<td align="left">Latin capital letter I with circumflex</td>
+</tr>
+<tr>
+<td align="left">207</td>
+<td align="left">317</td>
+<td align="left">CF</td>
+<td align="left">11001111</td>
+<td align="left">Ï</td>
+<td align="left">&#207;</td>
+<td align="left">Latin capital letter I with diaeresis</td>
+</tr>
+<tr>
+<td align="left">208</td>
+<td align="left">320</td>
+<td align="left">D0</td>
+<td align="left">11010000</td>
+<td align="left">Ð</td>
+<td align="left">&#208;</td>
+<td align="left">Latin capital letter ETH</td>
+</tr>
+<tr>
+<td align="left">209</td>
+<td align="left">321</td>
+<td align="left">D1</td>
+<td align="left">11010001</td>
+<td align="left">Ñ</td>
+<td align="left">&#209;</td>
+<td align="left">Latin capital letter N with tilde</td>
+</tr>
+<tr>
+<td align="left">210</td>
+<td align="left">322</td>
+<td align="left">D2</td>
+<td align="left">11010010</td>
+<td align="left">Ò</td>
+<td align="left">&#210;</td>
+<td align="left">Latin capital letter O with grave</td>
+</tr>
+<tr>
+<td align="left">211</td>
+<td align="left">323</td>
+<td align="left">D3</td>
+<td align="left">11010011</td>
+<td align="left">Ó</td>
+<td align="left">&#211;</td>
+<td align="left">Latin capital letter O with acute</td>
+</tr>
+<tr>
+<td align="left">212</td>
+<td align="left">324</td>
+<td align="left">D4</td>
+<td align="left">11010100</td>
+<td align="left">Ô</td>
+<td align="left">&#212;</td>
+<td align="left">Latin capital letter O with circumflex</td>
+</tr>
+<tr>
+<td align="left">213</td>
+<td align="left">325</td>
+<td align="left">D5</td>
+<td align="left">11010101</td>
+<td align="left">Õ</td>
+<td align="left">&#213;</td>
+<td align="left">Latin capital letter O with tilde</td>
+</tr>
+<tr>
+<td align="left">214</td>
+<td align="left">326</td>
+<td align="left">D6</td>
+<td align="left">11010110</td>
+<td align="left">Ö</td>
+<td align="left">&#214;</td>
+<td align="left">Latin capital letter O with diaeresis</td>
+</tr>
+<tr>
+<td align="left">215</td>
+<td align="left">327</td>
+<td align="left">D7</td>
+<td align="left">11010111</td>
+<td align="left">×</td>
+<td align="left">&#215;</td>
+<td align="left">Multiplication sign</td>
+</tr>
+<tr>
+<td align="left">216</td>
+<td align="left">330</td>
+<td align="left">D8</td>
+<td align="left">11011000</td>
+<td align="left">Ø</td>
+<td align="left">&#216;</td>
+<td align="left">Latin capital letter O with slash</td>
+</tr>
+<tr>
+<td align="left">217</td>
+<td align="left">331</td>
+<td align="left">D9</td>
+<td align="left">11011001</td>
+<td align="left">Ù</td>
+<td align="left">&#217;</td>
+<td align="left">Latin capital letter U with grave</td>
+</tr>
+<tr>
+<td align="left">218</td>
+<td align="left">332</td>
+<td align="left">DA</td>
+<td align="left">11011010</td>
+<td align="left">Ú</td>
+<td align="left">&#218;</td>
+<td align="left">Latin capital letter U with acute</td>
+</tr>
+<tr>
+<td align="left">219</td>
+<td align="left">333</td>
+<td align="left">DB</td>
+<td align="left">11011011</td>
+<td align="left">Û</td>
+<td align="left">&#219;</td>
+<td align="left">Latin capital letter U with circumflex</td>
+</tr>
+<tr>
+<td align="left">220</td>
+<td align="left">334</td>
+<td align="left">DC</td>
+<td align="left">11011100</td>
+<td align="left">Ü</td>
+<td align="left">&#220;</td>
+<td align="left">Latin capital letter U with diaeresis</td>
+</tr>
+<tr>
+<td align="left">221</td>
+<td align="left">335</td>
+<td align="left">DD</td>
+<td align="left">11011101</td>
+<td align="left">Ý</td>
+<td align="left">&#221;</td>
+<td align="left">Latin capital letter Y with acute</td>
+</tr>
+<tr>
+<td align="left">222</td>
+<td align="left">336</td>
+<td align="left">DE</td>
+<td align="left">11011110</td>
+<td align="left">Þ</td>
+<td align="left">&#222;</td>
+<td align="left">Latin capital letter THORN</td>
+</tr>
+<tr>
+<td align="left">223</td>
+<td align="left">337</td>
+<td align="left">DF</td>
+<td align="left">11011111</td>
+<td align="left">ß</td>
+<td align="left">&#223;</td>
+<td align="left">Latin small letter sharp s - ess-zed</td>
+</tr>
+<tr>
+<td align="left">224</td>
+<td align="left">340</td>
+<td align="left">E0</td>
+<td align="left">11100000</td>
+<td align="left">à</td>
+<td align="left">&#224;</td>
+<td align="left">Latin small letter a with grave</td>
+</tr>
+<tr>
+<td align="left">225</td>
+<td align="left">341</td>
+<td align="left">E1</td>
+<td align="left">11100001</td>
+<td align="left">á</td>
+<td align="left">&#225;</td>
+<td align="left">Latin small letter a with acute</td>
+</tr>
+<tr>
+<td align="left">226</td>
+<td align="left">342</td>
+<td align="left">E2</td>
+<td align="left">11100010</td>
+<td align="left">â</td>
+<td align="left">&#226;</td>
+<td align="left">Latin small letter a with circumflex</td>
+</tr>
+<tr>
+<td align="left">227</td>
+<td align="left">343</td>
+<td align="left">E3</td>
+<td align="left">11100011</td>
+<td align="left">ã</td>
+<td align="left">&#227;</td>
+<td align="left">Latin small letter a with tilde</td>
+</tr>
+<tr>
+<td align="left">228</td>
+<td align="left">344</td>
+<td align="left">E4</td>
+<td align="left">11100100</td>
+<td align="left">ä</td>
+<td align="left">&#228;</td>
+<td align="left">Latin small letter a with diaeresis</td>
+</tr>
+<tr>
+<td align="left">229</td>
+<td align="left">345</td>
+<td align="left">E5</td>
+<td align="left">11100101</td>
+<td align="left">å</td>
+<td align="left">&#229;</td>
+<td align="left">Latin small letter a with ring above</td>
+</tr>
+<tr>
+<td align="left">230</td>
+<td align="left">346</td>
+<td align="left">E6</td>
+<td align="left">11100110</td>
+<td align="left">æ</td>
+<td align="left">&#230;</td>
+<td align="left">Latin small letter ae</td>
+</tr>
+<tr>
+<td align="left">231</td>
+<td align="left">347</td>
+<td align="left">E7</td>
+<td align="left">11100111</td>
+<td align="left">ç</td>
+<td align="left">&#231;</td>
+<td align="left">Latin small letter c with cedilla</td>
+</tr>
+<tr>
+<td align="left">232</td>
+<td align="left">350</td>
+<td align="left">E8</td>
+<td align="left">11101000</td>
+<td align="left">è</td>
+<td align="left">&#232;</td>
+<td align="left">Latin small letter e with grave</td>
+</tr>
+<tr>
+<td align="left">233</td>
+<td align="left">351</td>
+<td align="left">E9</td>
+<td align="left">11101001</td>
+<td align="left">é</td>
+<td align="left">&#233;</td>
+<td align="left">Latin small letter e with acute</td>
+</tr>
+<tr>
+<td align="left">234</td>
+<td align="left">352</td>
+<td align="left">EA</td>
+<td align="left">11101010</td>
+<td align="left">ê</td>
+<td align="left">&#234;</td>
+<td align="left">Latin small letter e with circumflex</td>
+</tr>
+<tr>
+<td align="left">235</td>
+<td align="left">353</td>
+<td align="left">EB</td>
+<td align="left">11101011</td>
+<td align="left">ë</td>
+<td align="left">&#235;</td>
+<td align="left">Latin small letter e with diaeresis</td>
+</tr>
+<tr>
+<td align="left">236</td>
+<td align="left">354</td>
+<td align="left">EC</td>
+<td align="left">11101100</td>
+<td align="left">ì</td>
+<td align="left">&#236;</td>
+<td align="left">Latin small letter i with grave</td>
+</tr>
+<tr>
+<td align="left">237</td>
+<td align="left">355</td>
+<td align="left">ED</td>
+<td align="left">11101101</td>
+<td align="left">í</td>
+<td align="left">&#237;</td>
+<td align="left">Latin small letter i with acute</td>
+</tr>
+<tr>
+<td align="left">238</td>
+<td align="left">356</td>
+<td align="left">EE</td>
+<td align="left">11101110</td>
+<td align="left">î</td>
+<td align="left">&#238;</td>
+<td align="left">Latin small letter i with circumflex</td>
+</tr>
+<tr>
+<td align="left">239</td>
+<td align="left">357</td>
+<td align="left">EF</td>
+<td align="left">11101111</td>
+<td align="left">ï</td>
+<td align="left">&#239;</td>
+<td align="left">Latin small letter i with diaeresis</td>
+</tr>
+<tr>
+<td align="left">240</td>
+<td align="left">360</td>
+<td align="left">F0</td>
+<td align="left">11110000</td>
+<td align="left">ð</td>
+<td align="left">&#240;</td>
+<td align="left">Latin small letter eth</td>
+</tr>
+<tr>
+<td align="left">241</td>
+<td align="left">361</td>
+<td align="left">F1</td>
+<td align="left">11110001</td>
+<td align="left">ñ</td>
+<td align="left">&#241;</td>
+<td align="left">Latin small letter n with tilde</td>
+</tr>
+<tr>
+<td align="left">242</td>
+<td align="left">362</td>
+<td align="left">F2</td>
+<td align="left">11110010</td>
+<td align="left">ò</td>
+<td align="left">&#242;</td>
+<td align="left">Latin small letter o with grave</td>
+</tr>
+<tr>
+<td align="left">243</td>
+<td align="left">363</td>
+<td align="left">F3</td>
+<td align="left">11110011</td>
+<td align="left">ó</td>
+<td align="left">&#243;</td>
+<td align="left">Latin small letter o with acute</td>
+</tr>
+<tr>
+<td align="left">244</td>
+<td align="left">364</td>
+<td align="left">F4</td>
+<td align="left">11110100</td>
+<td align="left">ô</td>
+<td align="left">&#244;</td>
+<td align="left">Latin small letter o with circumflex</td>
+</tr>
+<tr>
+<td align="left">245</td>
+<td align="left">365</td>
+<td align="left">F5</td>
+<td align="left">11110101</td>
+<td align="left">õ</td>
+<td align="left">&#245;</td>
+<td align="left">Latin small letter o with tilde</td>
+</tr>
+<tr>
+<td align="left">246</td>
+<td align="left">366</td>
+<td align="left">F6</td>
+<td align="left">11110110</td>
+<td align="left">ö</td>
+<td align="left">&#246;</td>
+<td align="left">Latin small letter o with diaeresis</td>
+</tr>
+<tr>
+<td align="left">247</td>
+<td align="left">367</td>
+<td align="left">F7</td>
+<td align="left">11110111</td>
+<td align="left">÷</td>
+<td align="left">&#247;</td>
+<td align="left">Division sign</td>
+</tr>
+<tr>
+<td align="left">248</td>
+<td align="left">370</td>
+<td align="left">F8</td>
+<td align="left">11111000</td>
+<td align="left">ø</td>
+<td align="left">&#248;</td>
+<td align="left">Latin small letter o with slash</td>
+</tr>
+<tr>
+<td align="left">249</td>
+<td align="left">371</td>
+<td align="left">F9</td>
+<td align="left">11111001</td>
+<td align="left">ù</td>
+<td align="left">&#249;</td>
+<td align="left">Latin small letter u with grave</td>
+</tr>
+<tr>
+<td align="left">250</td>
+<td align="left">372</td>
+<td align="left">FA</td>
+<td align="left">11111010</td>
+<td align="left">ú</td>
+<td align="left">&#250;</td>
+<td align="left">Latin small letter u with acute</td>
+</tr>
+<tr>
+<td align="left">251</td>
+<td align="left">373</td>
+<td align="left">FB</td>
+<td align="left">11111011</td>
+<td align="left">û</td>
+<td align="left">&#251;</td>
+<td align="left">Latin small letter u with circumflex</td>
+</tr>
+<tr>
+<td align="left">252</td>
+<td align="left">374</td>
+<td align="left">FC</td>
+<td align="left">11111100</td>
+<td align="left">ü</td>
+<td align="left">&#252;</td>
+<td align="left">Latin small letter u with diaeresis</td>
+</tr>
+<tr>
+<td align="left">253</td>
+<td align="left">375</td>
+<td align="left">FD</td>
+<td align="left">11111101</td>
+<td align="left">ý</td>
+<td align="left">&#253;</td>
+<td align="left">Latin small letter y with acute</td>
+</tr>
+<tr>
+<td align="left">254</td>
+<td align="left">376</td>
+<td align="left">FE</td>
+<td align="left">11111110</td>
+<td align="left">þ</td>
+<td align="left">&#254;</td>
+<td align="left">Latin small letter thorn</td>
+</tr>
+<tr>
+<td align="left">255</td>
+<td align="left">377</td>
+<td align="left">FF</td>
+<td align="left">11111111</td>
+<td align="left">ÿ</td>
+<td align="left">&#255;</td>
+<td align="left">Latin small letter y with diaeresis</td>
+</tr>
+</tbody></table>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>C</tag>
       </tags>
   </entry>
   <entry>
@@ -1282,7 +3882,14 @@
   <entry>
     <title>Code Tools</title>
     <url>/2021/01/07/code-tools/</url>
-    <content><![CDATA[<h3 id="扫描文件"><a href="#扫描文件" class="headerlink" title="扫描文件"></a>扫描文件</h3><details>
+    <content><![CDATA[<h3 id="将View保存为图片"><a href="#将View保存为图片" class="headerlink" title="将View保存为图片"></a>将View保存为图片</h3><details>
+<summary>点我展开</summary>
+
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> android.app.Activity</span><br><span class="line"><span class="keyword">import</span> android.content.Intent</span><br><span class="line"><span class="keyword">import</span> android.graphics.Bitmap</span><br><span class="line"><span class="keyword">import</span> android.graphics.Canvas</span><br><span class="line"><span class="keyword">import</span> android.graphics.Color</span><br><span class="line"><span class="keyword">import</span> android.net.Uri</span><br><span class="line"><span class="keyword">import</span> android.util.DisplayMetrics</span><br><span class="line"><span class="keyword">import</span> android.util.Log</span><br><span class="line"><span class="keyword">import</span> android.view.View</span><br><span class="line"><span class="keyword">import</span> android.view.WindowManager</span><br><span class="line"><span class="keyword">import</span> java.io.File</span><br><span class="line"><span class="keyword">import</span> java.io.FileOutputStream</span><br><span class="line"></span><br><span class="line"><span class="keyword">object</span> ViewUtils &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">const</span> <span class="keyword">val</span> TAG = <span class="string">&quot;ViewUtils&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 保存view为图片</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> activity     Activity</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> view         View</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> savePathName 保存的文件路径及文件名</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Throws(Exception::class)</span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">saveView</span><span class="params">(activity: <span class="type">Activity</span>, view: <span class="type">View</span>, savePathName: <span class="type">String</span>)</span></span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//计算设备分辨率</span></span><br><span class="line">        <span class="keyword">val</span> manager: WindowManager = activity.windowManager</span><br><span class="line">        <span class="keyword">val</span> outMetrics = DisplayMetrics()</span><br><span class="line">        manager.defaultDisplay.getMetrics(outMetrics)</span><br><span class="line">        <span class="keyword">val</span> width: <span class="built_in">Int</span> = outMetrics.widthPixels</span><br><span class="line">        <span class="keyword">val</span> height: <span class="built_in">Int</span> = outMetrics.heightPixels</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 整个View的大小 参数是左上角 和右下角的坐标</span></span><br><span class="line">        view.layout(<span class="number">0</span>, <span class="number">0</span>, width, height)</span><br><span class="line">        <span class="keyword">val</span> measuredWidth: <span class="built_in">Int</span> = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)</span><br><span class="line">        <span class="keyword">val</span> measuredHeight: <span class="built_in">Int</span> = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST)</span><br><span class="line"></span><br><span class="line">        <span class="comment">//测量，布局View</span></span><br><span class="line">        view.measure(measuredWidth, measuredHeight)</span><br><span class="line">        view.layout(<span class="number">0</span>, <span class="number">0</span>, view.measuredWidth, view.measuredHeight)</span><br><span class="line">        view.isDrawingCacheEnabled = <span class="literal">true</span></span><br><span class="line">        view.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH</span><br><span class="line">        view.drawingCacheBackgroundColor = Color.WHITE</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 把一个View转换成图片</span></span><br><span class="line">        <span class="keyword">val</span> cacheBmp: Bitmap = viewConversionBitmap(view)</span><br><span class="line">        <span class="keyword">val</span> file = File(savePathName)</span><br><span class="line">        <span class="keyword">val</span> fos = FileOutputStream(file)</span><br><span class="line">        cacheBmp.compress(Bitmap.CompressFormat.PNG, <span class="number">90</span>, fos)</span><br><span class="line">        fos.flush()</span><br><span class="line">        fos.close()</span><br><span class="line">        view.destroyDrawingCache()</span><br><span class="line"></span><br><span class="line">        <span class="comment">//发送广播更新相册</span></span><br><span class="line">        <span class="keyword">val</span> intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)</span><br><span class="line">        <span class="keyword">val</span> uri: Uri = Uri.fromFile(file)</span><br><span class="line">        intent.<span class="keyword">data</span> = uri</span><br><span class="line">        activity.sendBroadcast(intent)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * view转bitmap</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> v View</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> Bitmap</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">viewConversionBitmap</span><span class="params">(v: <span class="type">View</span>)</span></span>: Bitmap &#123;</span><br><span class="line">        <span class="keyword">val</span> w: <span class="built_in">Int</span> = v.width</span><br><span class="line">        <span class="keyword">val</span> h: <span class="built_in">Int</span> = v.height</span><br><span class="line">        Log.e(TAG, <span class="string">&quot;width: <span class="variable">$w</span> height: <span class="variable">$h</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">val</span> bmp: Bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)</span><br><span class="line">        <span class="keyword">val</span> c = Canvas(bmp)</span><br><span class="line">        c.drawColor(Color.WHITE)</span><br><span class="line">        <span class="comment">/** 如果不设置canvas画布为白色，则生成透明  */</span></span><br><span class="line">        v.layout(<span class="number">0</span>, <span class="number">0</span>, w, h)</span><br><span class="line">        v.draw(c)</span><br><span class="line">        <span class="keyword">return</span> bmp</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<h3 id="扫描文件"><a href="#扫描文件" class="headerlink" title="扫描文件"></a>扫描文件</h3><details>
 <summary>点我展开</summary>
 
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.util.HashSet;</span><br><span class="line"><span class="keyword">import</span> java.util.LinkedList;</span><br><span class="line"><span class="keyword">import</span> java.util.Queue;</span><br><span class="line"><span class="keyword">import</span> java.util.Set;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Kavan</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ScanFileHelper</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> ScanFileHelper scanFileHelper;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ScanFileHelper <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (scanFileHelper == <span class="keyword">null</span>) &#123;</span><br><span class="line">            scanFileHelper = <span class="keyword">new</span> ScanFileHelper();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> scanFileHelper;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">ScanFileHelper</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> OnFileScanListener fileScanListener;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setOnFileScanListener</span><span class="params">(OnFileScanListener fileScanListener)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.fileScanListener = fileScanListener;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">interface</span> <span class="title">OnFileScanListener</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">onFileScan</span><span class="params">(String path)</span></span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">traverseFolderBFS</span><span class="params">(File node)</span> </span>&#123;</span><br><span class="line">        Set&lt;File&gt; visited = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">        Queue&lt;File&gt; q = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">        q.offer(node);</span><br><span class="line">        <span class="keyword">while</span> (!q.isEmpty()) &#123;</span><br><span class="line">            File currNode = q.poll();</span><br><span class="line">            <span class="keyword">if</span> (visited.contains(currNode) || <span class="keyword">null</span> == currNode) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (fileScanListener != <span class="keyword">null</span>) &#123;</span><br><span class="line">                fileScanListener.onFileScan(currNode.getAbsolutePath());</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;FileScanListener should be not null&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            visited.add(currNode);</span><br><span class="line">            File[] files = currNode.listFiles();</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">null</span> == files) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">for</span> (File file : files) &#123;</span><br><span class="line">                q.offer(file);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">traverseFolderBFS</span><span class="params">(File node, OnFileScanListener l)</span> </span>&#123;</span><br><span class="line">        setOnFileScanListener(l);</span><br><span class="line">        traverseFolderBFS(node);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
