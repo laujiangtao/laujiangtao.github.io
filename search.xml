@@ -141,6 +141,23 @@
       </tags>
   </entry>
   <entry>
+    <title>终端命令</title>
+    <url>/2021/01/04/terminal-command/</url>
+    <content><![CDATA[<h2 id="Java-JDK"><a href="#Java-JDK" class="headerlink" title="Java JDK"></a>Java JDK</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 【获取签名文件信息】</span><br><span class="line">// 1. key的路径</span><br><span class="line">// 2. 库的密码</span><br><span class="line">keytool -list -v -keystore %1 -storepass %2</span><br></pre></td></tr></table></figure>
+<h2 id="Android-SDK"><a href="#Android-SDK" class="headerlink" title="Android SDK"></a>Android SDK</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 【签名】</span><br><span class="line">// 1. key的路径</span><br><span class="line">// 2. 库的密码</span><br><span class="line">// 3. key的密码</span><br><span class="line">// 4. 签名后输出的文件名</span><br><span class="line">// 5. 需要签名的原文件</span><br><span class="line">// 6. key的别名</span><br><span class="line">jarsigner -keystore %1 -storepass %2 -keypass %3 -sigfile CERT -signedjar %4 %5 %6 -verbose -certs</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 配置个人名字和邮箱</span><br><span class="line">git config --global user.name &quot;$&#123;name&#125;&quot;</span><br><span class="line">git config --global user.email &quot;$&#123;email&#125;&quot;</span><br><span class="line"></span><br><span class="line">// 克隆公共仓库代码</span><br><span class="line">git clone https://github.com/$&#123;username&#125;/xxx.git</span><br><span class="line">// 克隆私密仓库代码</span><br><span class="line">git clone https://$&#123;username&#125;:$&#123;password&#125;@github.com/$&#123;username&#125;/xxx.git</span><br><span class="line"></span><br><span class="line">// 查看所有分支</span><br><span class="line">git branch -a</span><br><span class="line">// 检出分支/切换分支</span><br><span class="line">git checkout $&#123;branch_name&#125;</span><br><span class="line">// 查看当前Git状态</span><br><span class="line">git status</span><br><span class="line"></span><br><span class="line">// 提交代码</span><br><span class="line">git stash </span><br><span class="line">git fetch</span><br><span class="line">git rebase</span><br><span class="line">git stash pop</span><br><span class="line">git add .</span><br><span class="line">git commit -m &#x27;xxx&#x27;</span><br><span class="line">git push</span><br><span class="line"></span><br><span class="line">// 查看远程仓库</span><br><span class="line">git remote -v</span><br><span class="line">// 添加远程仓库</span><br><span class="line">git add remote $&#123;remote_name&#125; https://github.com/$&#123;username&#125;/xxx.git</span><br><span class="line">// 推送到默认仓库</span><br><span class="line">git push</span><br><span class="line">// 推送到指定仓库</span><br><span class="line">git push $&#123;remote_name&#125;</span><br><span class="line"></span><br><span class="line">// 修改http.postBuffer大小 (error: unable to rewind rpc post data - try increasing http.postBuffer)</span><br><span class="line">git config --global http.postBuffer 524288000</span><br><span class="line"></span><br><span class="line">// 列出tag</span><br><span class="line">git tag</span><br><span class="line">// 过滤tag</span><br><span class="line">git tag -l “v1.0*”</span><br><span class="line">// 创建tag</span><br><span class="line">git tag v1.0.0</span><br><span class="line">// 创建带备注的tag</span><br><span class="line">git tag -a v1.0.0 -m “版本1.0.0”</span><br><span class="line">// 查看tag信息</span><br><span class="line">git show v1.0.0</span><br><span class="line">// 给指定的commit加tag</span><br><span class="line">git tag -a v1.0.0 908f7b13 -m “版本1.0.0”</span><br><span class="line">// 将单个tag推送到远程</span><br><span class="line">git push [$&#123;remote_name&#125;] v1.0.0</span><br><span class="line">// 推送所有tag</span><br><span class="line">git push [$&#123;remote_name&#125;] --tags</span><br><span class="line">// 删除本地tag</span><br><span class="line">git tag -d v1.0.0</span><br><span class="line">// 删除远程tag</span><br><span class="line">git push [$&#123;remote_name&#125;] :refs/tags/v1.0.0</span><br><span class="line"></span><br><span class="line">// 清除缓存</span><br><span class="line">git rm -r --cached .</span><br></pre></td></tr></table></figure>
+
+<h2 id="VI-命令"><a href="#VI-命令" class="headerlink" title="VI 命令"></a>VI 命令</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Ctrl+u：向文件首翻半屏；</span><br><span class="line">Ctrl+d：向文件尾翻半屏；</span><br><span class="line">Ctrl+f：向文件尾翻一屏；</span><br><span class="line">Ctrl+b：向文件首翻一屏；</span><br><span class="line">Esc：从编辑模式切换到命令模式；</span><br><span class="line">ZZ：命令模式下保存当前文件所做的修改后退出vi；</span><br><span class="line">:行号：光标跳转到指定行的行首；</span><br><span class="line">:$：光标跳转到最后一行的行首；</span><br><span class="line">x或X：删除一个字符，x删除光标后的，而X删除光标前的；</span><br><span class="line">D：删除从当前光标到光标所在行尾的全部字符；</span><br><span class="line">dd：删除光标行正行内容；</span><br><span class="line">ndd：删除当前行及其后n-1行；</span><br><span class="line">nyy：将当前行及其下n行的内容保存到寄存器？中，其中？为一个字母，n为一个数字；</span><br><span class="line">p：粘贴文本操作，用于将缓存区的内容粘贴到当前光标所在位置的下方；</span><br><span class="line">P：粘贴文本操作，用于将缓存区的内容粘贴到当前光标所在位置的上方；</span><br><span class="line">/字符串：文本查找操作，用于从当前光标所在位置开始向文件尾部查找指定字符串的内容，查找的字符串会被加亮显示；</span><br><span class="line">？name：文本查找操作，用于从当前光标所在位置开始向文件头部查找指定字符串的内容，查找的字符串会被加亮显示；</span><br><span class="line">a，bs/F/T：替换文本操作，用于在第a行到第b行之间，将F字符串换成T字符串。其中，“s/”表示进行替换操作；</span><br><span class="line">a：在当前字符后添加文本；</span><br><span class="line">A：在行末添加文本；</span><br><span class="line">i：在当前字符前插入文本；</span><br><span class="line">I：在行首插入文本；</span><br><span class="line">o：在当前行后面插入一空行；</span><br><span class="line">O：在当前行前面插入一空行；</span><br><span class="line">:wq：在命令模式下，执行存盘退出操作；</span><br><span class="line">:w：在命令模式下，执行存盘操作；</span><br><span class="line">:w！：在命令模式下，执行强制存盘操作；</span><br><span class="line">:q：在命令模式下，执行退出vi操作；</span><br><span class="line">:q！：在命令模式下，执行强制退出vi操作；</span><br><span class="line">:e文件名：在命令模式下，打开并编辑指定名称的文件；</span><br><span class="line">:n：在命令模式下，如果同时打开多个文件，则继续编辑下一个文件；</span><br><span class="line">:f：在命令模式下，用于显示当前的文件名、光标所在行的行号以及显示比例；</span><br><span class="line">:set number：在命令模式下，用于在最左端显示行号；</span><br><span class="line">:set nonumber：在命令模式下，用于在最左端不显示行号；</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>Terminal</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>下载JDK和配置环境变量</title>
     <url>/2020/12/28/download-jdk-and-configure-environment-variables/</url>
     <content><![CDATA[<h2 id="下载JDK"><a href="#下载JDK" class="headerlink" title="下载JDK"></a>下载JDK</h2><p>去<a href="https://www.oracle.com/index.html">Oracel官网</a>下载最新版本的JDK并安装</p>
@@ -181,23 +198,6 @@
       </categories>
       <tags>
         <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>终端命令</title>
-    <url>/2021/01/04/terminal-command/</url>
-    <content><![CDATA[<h2 id="Java-JDK"><a href="#Java-JDK" class="headerlink" title="Java JDK"></a>Java JDK</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 【获取签名文件信息】</span><br><span class="line">// 1. key的路径</span><br><span class="line">// 2. 库的密码</span><br><span class="line">keytool -list -v -keystore %1 -storepass %2</span><br></pre></td></tr></table></figure>
-<h2 id="Android-SDK"><a href="#Android-SDK" class="headerlink" title="Android SDK"></a>Android SDK</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 【签名】</span><br><span class="line">// 1. key的路径</span><br><span class="line">// 2. 库的密码</span><br><span class="line">// 3. key的密码</span><br><span class="line">// 4. 签名后输出的文件名</span><br><span class="line">// 5. 需要签名的原文件</span><br><span class="line">// 6. key的别名</span><br><span class="line">jarsigner -keystore %1 -storepass %2 -keypass %3 -sigfile CERT -signedjar %4 %5 %6 -verbose -certs</span><br></pre></td></tr></table></figure>
-
-
-<h2 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 配置个人名字和邮箱</span><br><span class="line">git config --global user.name &quot;$&#123;name&#125;&quot;</span><br><span class="line">git config --global user.email &quot;$&#123;email&#125;&quot;</span><br><span class="line"></span><br><span class="line">// 克隆公共仓库代码</span><br><span class="line">git clone https://github.com/$&#123;username&#125;/xxx.git</span><br><span class="line">// 克隆私密仓库代码</span><br><span class="line">git clone https://$&#123;username&#125;:$&#123;password&#125;@github.com/$&#123;username&#125;/xxx.git</span><br><span class="line"></span><br><span class="line">// 查看所有分支</span><br><span class="line">git branch -a</span><br><span class="line">// 检出分支/切换分支</span><br><span class="line">git checkout $&#123;branch_name&#125;</span><br><span class="line">// 查看当前Git状态</span><br><span class="line">git status</span><br><span class="line"></span><br><span class="line">// 提交代码</span><br><span class="line">git stash </span><br><span class="line">git fetch</span><br><span class="line">git rebase</span><br><span class="line">git stash pop</span><br><span class="line">git add .</span><br><span class="line">git commit -m &#x27;xxx&#x27;</span><br><span class="line">git push</span><br><span class="line"></span><br><span class="line">// 查看远程仓库</span><br><span class="line">git remote -v</span><br><span class="line">// 添加远程仓库</span><br><span class="line">git add remote $&#123;remote_name&#125; https://github.com/$&#123;username&#125;/xxx.git</span><br><span class="line">// 推送到默认仓库</span><br><span class="line">git push</span><br><span class="line">// 推送到指定仓库</span><br><span class="line">git push $&#123;remote_name&#125;</span><br><span class="line"></span><br><span class="line">// 修改http.postBuffer大小 (error: unable to rewind rpc post data - try increasing http.postBuffer)</span><br><span class="line">git config --global http.postBuffer 524288000</span><br><span class="line"></span><br><span class="line">// 列出tag</span><br><span class="line">git tag</span><br><span class="line">// 过滤tag</span><br><span class="line">git tag -l “v1.0*”</span><br><span class="line">// 创建tag</span><br><span class="line">git tag v1.0.0</span><br><span class="line">// 创建带备注的tag</span><br><span class="line">git tag -a v1.0.0 -m “版本1.0.0”</span><br><span class="line">// 查看tag信息</span><br><span class="line">git show v1.0.0</span><br><span class="line">// 给指定的commit加tag</span><br><span class="line">git tag -a v1.0.0 908f7b13 -m “版本1.0.0”</span><br><span class="line">// 将单个tag推送到远程</span><br><span class="line">git push [$&#123;remote_name&#125;] v1.0.0</span><br><span class="line">// 推送所有tag</span><br><span class="line">git push [$&#123;remote_name&#125;] --tags</span><br><span class="line">// 删除本地tag</span><br><span class="line">git tag -d v1.0.0</span><br><span class="line">// 删除远程tag</span><br><span class="line">git push [$&#123;remote_name&#125;] :refs/tags/v1.0.0</span><br><span class="line"></span><br><span class="line">// 清除缓存</span><br><span class="line">git rm -r --cached .</span><br></pre></td></tr></table></figure>
-
-<h2 id="VI-命令"><a href="#VI-命令" class="headerlink" title="VI 命令"></a>VI 命令</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Ctrl+u：向文件首翻半屏；</span><br><span class="line">Ctrl+d：向文件尾翻半屏；</span><br><span class="line">Ctrl+f：向文件尾翻一屏；</span><br><span class="line">Ctrl+b：向文件首翻一屏；</span><br><span class="line">Esc：从编辑模式切换到命令模式；</span><br><span class="line">ZZ：命令模式下保存当前文件所做的修改后退出vi；</span><br><span class="line">:行号：光标跳转到指定行的行首；</span><br><span class="line">:$：光标跳转到最后一行的行首；</span><br><span class="line">x或X：删除一个字符，x删除光标后的，而X删除光标前的；</span><br><span class="line">D：删除从当前光标到光标所在行尾的全部字符；</span><br><span class="line">dd：删除光标行正行内容；</span><br><span class="line">ndd：删除当前行及其后n-1行；</span><br><span class="line">nyy：将当前行及其下n行的内容保存到寄存器？中，其中？为一个字母，n为一个数字；</span><br><span class="line">p：粘贴文本操作，用于将缓存区的内容粘贴到当前光标所在位置的下方；</span><br><span class="line">P：粘贴文本操作，用于将缓存区的内容粘贴到当前光标所在位置的上方；</span><br><span class="line">/字符串：文本查找操作，用于从当前光标所在位置开始向文件尾部查找指定字符串的内容，查找的字符串会被加亮显示；</span><br><span class="line">？name：文本查找操作，用于从当前光标所在位置开始向文件头部查找指定字符串的内容，查找的字符串会被加亮显示；</span><br><span class="line">a，bs/F/T：替换文本操作，用于在第a行到第b行之间，将F字符串换成T字符串。其中，“s/”表示进行替换操作；</span><br><span class="line">a：在当前字符后添加文本；</span><br><span class="line">A：在行末添加文本；</span><br><span class="line">i：在当前字符前插入文本；</span><br><span class="line">I：在行首插入文本；</span><br><span class="line">o：在当前行后面插入一空行；</span><br><span class="line">O：在当前行前面插入一空行；</span><br><span class="line">:wq：在命令模式下，执行存盘退出操作；</span><br><span class="line">:w：在命令模式下，执行存盘操作；</span><br><span class="line">:w！：在命令模式下，执行强制存盘操作；</span><br><span class="line">:q：在命令模式下，执行退出vi操作；</span><br><span class="line">:q！：在命令模式下，执行强制退出vi操作；</span><br><span class="line">:e文件名：在命令模式下，打开并编辑指定名称的文件；</span><br><span class="line">:n：在命令模式下，如果同时打开多个文件，则继续编辑下一个文件；</span><br><span class="line">:f：在命令模式下，用于显示当前的文件名、光标所在行的行号以及显示比例；</span><br><span class="line">:set number：在命令模式下，用于在最左端显示行号；</span><br><span class="line">:set nonumber：在命令模式下，用于在最左端不显示行号；</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>Terminal</tag>
       </tags>
   </entry>
   <entry>
@@ -247,29 +247,6 @@
       </tags>
   </entry>
   <entry>
-    <title>【转载】关于QQ读取Chrome历史记录的澄清</title>
-    <url>/2021/01/25/clarification-of-qq-reading-chrome-history/</url>
-    <content><![CDATA[<p><a href="https://bbs.pediy.com/thread-265359.htm">原文链接</a></p>
-<p>今天看到群里有同学发了一篇v2ex上的<a href="https://www.v2ex.com/t/745030">帖子</a>，说QQ会读取Chrome的历史记录，被火绒自定义规则拦截了，本来我是不信的，但是他说他复现了，而且是QQ登录10分钟后才会去访问。</p>
-<p>这我就想去验证下了，开虚拟机装QQ、Chrome，然后打开Process Monitor开始等。规则简单的过滤下。</p>
-<p><img src="/2021/01/25/clarification-of-qq-reading-chrome-history/873391_DJ94X9WVG4MBTWR.png" alt="img"><br>果然看到了读取AppData\Local\Google\Chrome\User Data\Default\History等目录的操作。</p>
-<p><img src="/2021/01/25/clarification-of-qq-reading-chrome-history/873391_W68XZTFJANKMN69.png" alt="img"><br>而且时间也是恰到好处的十分钟。</p>
-<p><img src="/2021/01/25/clarification-of-qq-reading-chrome-history/873391_FWD8MPBYN2VRD3G.png" alt="img"><br>这是实锤了QQ和Chrome过不去啊，这我可不信，把规则去掉，重新翻了一下才发现果然是冤枉QQ了啊。</p>
-<p><img src="/2021/01/25/clarification-of-qq-reading-chrome-history/873391_AGXY96FE877JTJU.png" alt="img"><br>受害人之多令人震惊，仔细一看，这玩意是遍历了Appdata\Local\下的所有文件夹，然后加上User Data\Default\History去读啊。User Data\Default\History是谷歌系浏览器（火狐等浏览器不熟，不清楚目录如何）默认的历史纪录存放位置，Chrome中枪也就很正常了。</p>
-<p>然后就该研究研究QQ为啥要这么干了，读取到的浏览器历史记录又拿来干啥了呢？</p>
-<p>挂上x32dbg，动态调试找到位置。</p>
-<p><img src="/2021/01/25/clarification-of-qq-reading-chrome-history/873391_C2KUMY3YXHM4B37.png" alt="img"><br>然后去IDA里直接反编译出来，如下（位置在AppUtil.dll中 .text:510EFB98 附近）</p>
-<p><img src="/2021/01/25/clarification-of-qq-reading-chrome-history/873391_5HHXWXCZHYAZ4RH.png" alt="img"><br>这一段的逻辑还是很好看懂的，先读取各种 User Data\Default\History 文件，读到了就复制到Temp目录下的temphis.db。回去看下Procmom，果然没错。</p>
-<p><img src="/2021/01/25/clarification-of-qq-reading-chrome-history/873391_3CRMBX6H9ENTZ6B.png" alt="img"><br>再之后的操作就简单了，SQLite读取数据库，然后“select url from urls”，这是在干什么大家都懂哈。后面就不接着讲了，有兴趣的可以自己接着看。</p>
-<p>结论，QQ并不是特意读取Chrome的历史记录的，而是会试图读取电脑里所有谷歌系浏览器的历史记录并提取链接，确认会中招的浏览器包括但不限于Chrome、Chromium、360极速、360安全、猎豹、2345等浏览器。</p>
-<p>晚上来编辑一下，刚才去试了下TIM，果然经典重现，而且比QQ还离谱，不多说直接上图。</p>
-<p><img src="/2021/01/25/clarification-of-qq-reading-chrome-history/873391_W44WFBHCYKMC3PX.png" alt="图片描述"><br><img src="/2021/01/25/clarification-of-qq-reading-chrome-history/873391_FY3MV2SM35XPDR2.png" alt="img"></p>
-]]></content>
-      <categories>
-        <category>互联网动态</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Windows VScode 配置 C++ 环境</title>
     <url>/2021/01/28/windows-vscode-configures-the-cpp-environment/</url>
     <content><![CDATA[<p><strong>Windows 安装 MinGW-w64</strong></p>
@@ -285,7 +262,7 @@
 <p><img src="/2021/01/28/windows-vscode-configures-the-cpp-environment/img5.png" alt="安装过程"></p>
 <p>在国内下载过程非常慢，我下载了两天，最终失败。所以直接去下载安装包了。</p>
 </li>
-<li><p>下载安装包 <a href="mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z" title="mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z">mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z</a></p>
+<li><p>下载安装包</p>
 </li>
 <li><p>解压文件到本地目录并复制<code>bin</code>的路径</p>
 <p><img src="/2021/01/28/windows-vscode-configures-the-cpp-environment/img2.png" alt="本地目录"></p>
@@ -376,21 +353,6 @@
       </tags>
   </entry>
   <entry>
-    <title>2021 Happy New Year</title>
-    <url>/2021/02/12/happy-new-year/</url>
-    <content><![CDATA[<p>2021，30而立，年除日，吃自己下的饺子。</p>
-<ul>
-<li><p>猪肉香菇馅的饺子<br><img src="/2021/02/12/happy-new-year/IMG_2452.jpeg" alt="猪肉香菇馅的饺子"></p>
-</li>
-<li><p>崂山啤酒<br><img src="/2021/02/12/happy-new-year/IMG_2455.jpeg" alt="崂山啤酒"></p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>生活</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Linux安装Flutter开发环境</title>
     <url>/2021/02/19/linux-install-flutter-development-environment/</url>
     <content><![CDATA[<p><a href="https://flutter.dev/docs/development/tools/sdk/releases?tab=linux">转到下载页</a></p>
@@ -470,26 +432,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Jekins构建Flutter项目</title>
-    <url>/2021/02/24/jekins-build-flutter-project/</url>
-    <content><![CDATA[<ul>
-<li><p>构建面板<br><img src="/2021/02/24/jekins-build-flutter-project/img1.png" alt="img1"></p>
-</li>
-<li><p>构建命令</p>
-<blockquote>
-<p>以登录方式执行bash命令，进入项目目录下，清除flutter缓存，构建对应服务器的Android apk，构建完成，将apk复制到tomcat公开目录下，发送钉钉消息。其他同Android项目构建</p>
-</blockquote>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#!/bin/sh -l</span><br><span class="line">cd ~/.jenkins/workspace/Flutter</span><br><span class="line">flutter clean</span><br><span class="line">flutter build apk --obfuscate --split-debug-info=/Flutter/build --target lib/main_$&#123;FLAVOR_NAME&#125;.dart</span><br></pre></td></tr></table></figure></li>
-</ul>
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>jekins</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>禅道项目管理软件部署</title>
     <url>/2021/03/09/zentao-project-management-software-deployment/</url>
     <content><![CDATA[<blockquote>
@@ -533,6 +475,26 @@
       <categories>
         <category>技术</category>
       </categories>
+  </entry>
+  <entry>
+    <title>Jekins构建Flutter项目</title>
+    <url>/2021/02/24/jekins-build-flutter-project/</url>
+    <content><![CDATA[<ul>
+<li><p>构建面板<br><img src="/2021/02/24/jekins-build-flutter-project/img1.png" alt="img1"></p>
+</li>
+<li><p>构建命令</p>
+<blockquote>
+<p>以登录方式执行bash命令，进入项目目录下，清除flutter缓存，构建对应服务器的Android apk，构建完成，将apk复制到tomcat公开目录下，发送钉钉消息。其他同Android项目构建</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#!/bin/sh -l</span><br><span class="line">cd ~/.jenkins/workspace/Flutter</span><br><span class="line">flutter clean</span><br><span class="line">flutter build apk --obfuscate --split-debug-info=/Flutter/build --target lib/main_$&#123;FLAVOR_NAME&#125;.dart</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>jekins</tag>
+      </tags>
   </entry>
   <entry>
     <title>线性伸缩圆角矩形indicator</title>
@@ -755,63 +717,6 @@
       </categories>
       <tags>
         <tag>MQTT</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>gradle配置项packagingOptions</title>
-    <url>/2021/09/24/gradle-configuration-item-packaging-options/</url>
-    <content><![CDATA[<p>packagingOptions常见的设置项有exclude、pickFirst、doNotStrip、merge。</p>
-<ol>
-<li>exclude，过滤掉某些文件或者目录不添加到APK中，作用于APK，不能过滤aar和jar中的内容。<br>比如：<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">packagingOptions &#123;</span><br><span class="line">    exclude <span class="string">&#x27;META-INF/**&#x27;</span></span><br><span class="line">    exclude <span class="string">&#x27;lib/arm64-v8a/libmediaplayer.so&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>pickFirst，匹配到多个相同文件，只提取第一个。只作用于APK，不能过滤aar和jar中的文件。<br>比如：<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">packagingOptions &#123;</span><br><span class="line">    pickFirst <span class="string">&quot;lib/armeabi-v7a/libaaa.so&quot;</span></span><br><span class="line">    pickFirst <span class="string">&quot;lib/armeabi-v7a/libbbb.so&quot;</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>doNotStrip，可以设置某些动态库不被优化压缩。<br>比如：<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">packagingOptions&#123;</span><br><span class="line">    doNotStrip <span class="string">&quot;*/armeabi/*.so&quot;</span></span><br><span class="line">    doNotStrip <span class="string">&quot;*/armeabi-v7a/*.so&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>merge，将匹配的文件都添加到APK中，和pickFirst有些相反，会合并所有文件。<br>比如：<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">packagingOptions &#123;</span><br><span class="line">    merge <span class="string">&#x27;**/LICENSE.txt&#x27;</span></span><br><span class="line">    merge <span class="string">&#x27;**/NOTICE.txt&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>gradle</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TED-Ed-婚姻的历史</title>
-    <url>/2021/10/05/the-history-of-marriage/</url>
-    <content><![CDATA[<p>已经各种有不同文字记录和讨论着关于婚姻的话题。从甜蜜励志的到诙谐讽刺的。但是他们的共同点是他们听上去像在表达着一个横贯中西，纵横古今的真理。而事实上，几乎所有关于婚姻从她的主要意图，到其中牵涉的各种关系，再到与之相关的义务，在不同的时代、文化和社会阶级间都大相径庭。那么，让我们快速浏览一下婚姻的演变。</p>
-<p>成家立室和养育子女就和人类本身一样历史悠久。随着定居型的农耕社会的兴起，大约一万年前，婚姻也是一种确保土地权和财产权的方式，这种方式通过指定在某些情况下出生的孩子为合法继承人来实现。随着这些社会变得更大更复杂，婚姻已不仅仅成为个人和家庭间的事情，她也成为了由宗教和民事行政机构管辖的一种官方制度。至公元前2100年，这种制度已经被完善地建立起来。那个时候订立了现存最早的成文法，并记录在美索不达米亚的乌尔纳姆法典中，该法律规定了许多细节来制约管理婚姻，从对通奸的处分到出身于努力家庭孩子的合法身份。</p>
-<p>许多古代文明允许多重婚姻制度。甚至到今日，在全世界几百种不同的文化中，只有四分之一的文化是禁止多重配偶制。但是，有些事情存在并不代表它总是可行的。人口的现实问题，以及婚姻和财富的连带关系，意味着即使在古代的亚索不达米亚、埃及和以色列的统治者和精英贵族妻妾成群，但大部分的老百姓只负担得起一个或者两个妻子，所以实际情况是更趋向于一夫一妻制。</p>
-<p>在其他一些地区，情况正好相反，一位女性可以有多位丈夫，比如在喜马拉雅山地区，那里有一个家庭中的所有男性与同一名女性结了婚，他们用婚姻保护着一片有限而肥沃的土地，以防止它被新成立的家庭不断分割。</p>
-<p>婚姻可以多种多样，不仅是其参与其中的人数，也包括人的性别类型。虽然关于同性婚姻的名称和法律可能有所不同，但是公开承认同性婚姻已经在历史长河中的各种文明里出现。美索不达米亚的祷文中包括了为同性夫妻进行祝福，而美洲印第安的双灵人与两种性别的人都会发生关系。首例同性婚姻被实际称作“婚姻”的情况出现在罗马，皇帝尼禄和埃拉伽巴鲁斯二人都以公开典礼的形式与男性结婚，这种行为在公元342年被明令禁止。但是，类似的传统在进入公元后幸免于难。比如滴血为盟或者传统教会中的兄弟结拜，甚至两个男人之间实质的婚姻，在1061年西班牙某个小礼拜堂的记录中都有所记载。</p>
-<p>婚姻甚至都不一定需要发生在两个活人之间。冥婚，就是新娘或新郎已经去世。他曾在中国出现过，主要是为了延续家族香火或者安抚死不瞑目的灵魂。另外，苏丹一些部落延续了相似的情况。</p>
-<p>尽管有这些五花八门的差异，但古今历史中的许多婚姻，也的确有一个共同点。一些决定性的因素比如财产和至关重要的传宗接代的问题，这些因素都太重要了，以致于婚姻无法只取决于脆弱的爱情。尤其在上流社会，配偶的人选常常由家庭或者统治者来决定。即使对有一定选择权的普通百姓，主要的考量还是实用性。</p>
-<p>现代婚姻的理念，主要围绕着爱和友谊，这种观念仅仅是在过去的几个世纪才出现。随着工业化，城市化以及中产阶级的涌现，越来越多的人从庞大的家族中独立出来，并且有能力负担一个新的家庭。受到来自于启蒙运动中新思想的鼓舞，对于婚姻，人们开始更加注重个人的幸福和诉求，而不是家庭责任或财富地位，至少有些时候是这样的。而这种对个人幸福的放大很快导致了其他方面的转变，比如放宽对离婚的束缚，以及晚婚率的增加。所以，随着我们进一步的讨论，婚姻在现代社会的角色和定义时，也许我们应谨记，婚姻始终都是社会的产物，而随着社会的结构、价值观和目标的不断改变，对于婚姻的定位也会随之不断进行着调整。</p>
-]]></content>
-      <categories>
-        <category>生活</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Tue Dec 29 2020 08:35:44 GMT+0800 (中国标准时间)</title>
-    <url>/2020/12/29/index/</url>
-    <content><![CDATA[<ul>
-<li>2020-12-29</li>
-</ul>
-<p>半睡半醒一整夜，<br>早上醒来还不到6点，<br>透过缝隙可见天已微亮，随手照了一张。<br><img src="./IMG_2222.jpeg" width="400"/></p>
-<p>三点钟，朋友圈就有下雪的动态了，估计白天在朋友圈能看各地雪景。</p>
-<p>上班路上：<br><video src="./IMG_2223.MOV" width="400" controls="controls"></video></p>
-<p>在办公区：<br><video src="./IMG_2224.MOV" controls="controls"></video></p>
-<hr>
-<ul>
-<li>2020-12-30</li>
-</ul>
-<p>昨天在朋友圈等了一天也没个像样的雪景，自己来一个<br><video src="./7961e53e11f75e86c544fa8cc51f6d.mp4" controls="controls"></video></p>
-]]></content>
-      <categories>
-        <category>生活</category>
-      </categories>
-      <tags>
-        <tag>随手拍</tag>
       </tags>
   </entry>
   <entry>
