@@ -65,7 +65,7 @@
 <p>缺少库安装：<br><code> brew reinstall ffmpeg --with-sdl2 --with-fdk-aac --with-fontconfig</code></p>
 <p><code> brew install --with-sdl2 --with-fdk-aac --with-fontconfig --with-frei0r --with-game-music-emu --with-libass --with-libbs2b --with-libcaca --with-libgsm --with-libmodplug --with-librsvg --with-libsoxr --with-libssh --with-libvidstab --with-libvorbis --with-libvpx --with-opencore-amr --with-openh264 --with-openjpeg --with-openssl --with-opus --with-rtmpdump --with-rubberband --with-sdl2 --with-snapp --with-speex --with-srt --with-tesseract --with-theora --with-tools --with-two-lame --with-wavpack --with-webp --with-x265 --with-xz --with-zeromq --with-zimg --with-chromaprint --with-libbluray --with-snappy  --with-freetype</code></p>
 <p><img src="/2020/12/25/ffmpeg-note/%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E5%99%A8%E5%8E%9F%E7%90%86.png" alt="视频播放器原理"></p>
-<h1 id="Windows-build-下载"><a href="#Windows-build-下载" class="headerlink" title="Windows build 下载"></a><a href="ffmpeg-4.3.2-2021-02-27-full_build.7z">Windows build 下载</a></h1><h1 id="剪切视频（长度）"><a href="#剪切视频（长度）" class="headerlink" title="剪切视频（长度）"></a>剪切视频（长度）</h1><p><code> ffmpeg -ss 990 -i input.mp4 -t 50 output.mp4</code></p>
+<h1 id="剪切视频（长度）"><a href="#剪切视频（长度）" class="headerlink" title="剪切视频（长度）"></a>剪切视频（长度）</h1><p><code> ffmpeg -ss 990 -i input.mp4 -t 50 output.mp4</code></p>
 <blockquote>
 <p>-ss 开始的秒数<br>-t 截取时长<br>-s 调整分辨率</p>
 </blockquote>
@@ -353,6 +353,36 @@
       </tags>
   </entry>
   <entry>
+    <title>Jekins构建Android项目</title>
+    <url>/2021/02/24/jekins-build-android-project/</url>
+    <content><![CDATA[<ul>
+<li><p>构建面板<br><img src="/2021/02/24/jekins-build-android-project/img1.png" alt="img1"></p>
+</li>
+<li><p>属性配置<br><img src="/2021/02/24/jekins-build-android-project/img2.jpeg" alt="img2"><br><img src="/2021/02/24/jekins-build-android-project/img3.jpeg" alt="img3"><br><img src="/2021/02/24/jekins-build-android-project/img4.jpeg" alt="img4"></p>
+</li>
+<li><p>gradle task任务</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">app:clean</span><br><span class="line">app:assemble$&#123;PRODUCT_FLAVORS&#125;$&#123;BUILD_TYPE&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>构建完成，复制apk包到tomcat配置的公开目录下</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cp /home/androidserver/.jenkins/workspace/Android/app/build/outputs/apk/$&#123;PRODUCT_FLAVORS&#125;/$&#123;BUILD_TYPE&#125;/$&#123;APP_NAME&#125;-$&#123;PRODUCT_FLAVORS&#125;-$&#123;BUILD_TYPE&#125;-$&#123;APP_BUILD_TIME&#125;.apk /home/androidserver/Public/mmmiddle/$&#123;APP_NAME&#125;-$&#123;PRODUCT_FLAVORS&#125;-$&#123;BUILD_TYPE&#125;-$&#123;APP_BUILD_TIME&#125;.apk</span><br></pre></td></tr></table></figure></li>
+<li><p>钉钉消息配置，发送tomcat公开目录下的新apk文件地址</p>
+<blockquote>
+<p><a href="http://192.168.2.98:8080/public/mmmiddle/$%7BAPP_NAME%7D-$%7BPRODUCT_FLAVORS%7D-$%7BBUILD_TYPE%7D-$%7BAPP_BUILD_TIME%7D.apk">http://192.168.2.98:8080/public/mmmiddle/${APP_NAME}-${PRODUCT_FLAVORS}-${BUILD_TYPE}-${APP_BUILD_TIME}.apk</a></p>
+<p>${DESCRIPTION}</p>
+</blockquote>
+</li>
+<li><p>钉钉消息样式<br><img src="/2021/02/24/jekins-build-android-project/img6.png" alt="钉钉消息样式"></p>
+</li>
+</ul>
+<h2 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h2><p><img src="/2021/02/24/jekins-build-android-project/img5.jpeg" alt="安装的插件"></p>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>jekins</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Linux安装Flutter开发环境</title>
     <url>/2021/02/19/linux-install-flutter-development-environment/</url>
     <content><![CDATA[<p><a href="https://flutter.dev/docs/development/tools/sdk/releases?tab=linux">转到下载页</a></p>
@@ -402,27 +432,17 @@
       </tags>
   </entry>
   <entry>
-    <title>Jekins构建Android项目</title>
-    <url>/2021/02/24/jekins-build-android-project/</url>
+    <title>Jekins构建Flutter项目</title>
+    <url>/2021/02/24/jekins-build-flutter-project/</url>
     <content><![CDATA[<ul>
-<li><p>构建面板<br><img src="/2021/02/24/jekins-build-android-project/img1.png" alt="img1"></p>
+<li><p>构建面板<br><img src="/2021/02/24/jekins-build-flutter-project/img1.png" alt="img1"></p>
 </li>
-<li><p>属性配置<br><img src="/2021/02/24/jekins-build-android-project/img2.jpeg" alt="img2"><br><img src="/2021/02/24/jekins-build-android-project/img3.jpeg" alt="img3"><br><img src="/2021/02/24/jekins-build-android-project/img4.jpeg" alt="img4"></p>
-</li>
-<li><p>gradle task任务</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">app:clean</span><br><span class="line">app:assemble$&#123;PRODUCT_FLAVORS&#125;$&#123;BUILD_TYPE&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>构建完成，复制apk包到tomcat配置的公开目录下</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cp /home/androidserver/.jenkins/workspace/Android/app/build/outputs/apk/$&#123;PRODUCT_FLAVORS&#125;/$&#123;BUILD_TYPE&#125;/$&#123;APP_NAME&#125;-$&#123;PRODUCT_FLAVORS&#125;-$&#123;BUILD_TYPE&#125;-$&#123;APP_BUILD_TIME&#125;.apk /home/androidserver/Public/mmmiddle/$&#123;APP_NAME&#125;-$&#123;PRODUCT_FLAVORS&#125;-$&#123;BUILD_TYPE&#125;-$&#123;APP_BUILD_TIME&#125;.apk</span><br></pre></td></tr></table></figure></li>
-<li><p>钉钉消息配置，发送tomcat公开目录下的新apk文件地址</p>
+<li><p>构建命令</p>
 <blockquote>
-<p><a href="http://192.168.2.98:8080/public/mmmiddle/$%7BAPP_NAME%7D-$%7BPRODUCT_FLAVORS%7D-$%7BBUILD_TYPE%7D-$%7BAPP_BUILD_TIME%7D.apk">http://192.168.2.98:8080/public/mmmiddle/${APP_NAME}-${PRODUCT_FLAVORS}-${BUILD_TYPE}-${APP_BUILD_TIME}.apk</a></p>
-<p>${DESCRIPTION}</p>
+<p>以登录方式执行bash命令，进入项目目录下，清除flutter缓存，构建对应服务器的Android apk，构建完成，将apk复制到tomcat公开目录下，发送钉钉消息。其他同Android项目构建</p>
 </blockquote>
-</li>
-<li><p>钉钉消息样式<br><img src="/2021/02/24/jekins-build-android-project/img6.png" alt="钉钉消息样式"></p>
-</li>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#!/bin/sh -l</span><br><span class="line">cd ~/.jenkins/workspace/Flutter</span><br><span class="line">flutter clean</span><br><span class="line">flutter build apk --obfuscate --split-debug-info=/Flutter/build --target lib/main_$&#123;FLAVOR_NAME&#125;.dart</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h2 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h2><p><img src="/2021/02/24/jekins-build-android-project/img5.jpeg" alt="安装的插件"></p>
 ]]></content>
       <categories>
         <category>技术</category>
@@ -437,7 +457,6 @@
     <content><![CDATA[<blockquote>
 <p>Windows连接远程Linux部署项目管理软件</p>
 </blockquote>
-<p><a href="ZenTaoPMS.12.5.3.zbox_64.tar.gz">禅道软件包</a></p>
 <ul>
 <li><p>复制安装包到远程Linux</p>
 <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">scp E:\Download\ZenTaoPMS.12.5.3.zbox_64.tar.gz androidserver@10.10.2.98:/home/androidserver/Desktop</span><br></pre></td></tr></table></figure>
@@ -475,26 +494,6 @@
       <categories>
         <category>技术</category>
       </categories>
-  </entry>
-  <entry>
-    <title>Jekins构建Flutter项目</title>
-    <url>/2021/02/24/jekins-build-flutter-project/</url>
-    <content><![CDATA[<ul>
-<li><p>构建面板<br><img src="/2021/02/24/jekins-build-flutter-project/img1.png" alt="img1"></p>
-</li>
-<li><p>构建命令</p>
-<blockquote>
-<p>以登录方式执行bash命令，进入项目目录下，清除flutter缓存，构建对应服务器的Android apk，构建完成，将apk复制到tomcat公开目录下，发送钉钉消息。其他同Android项目构建</p>
-</blockquote>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#!/bin/sh -l</span><br><span class="line">cd ~/.jenkins/workspace/Flutter</span><br><span class="line">flutter clean</span><br><span class="line">flutter build apk --obfuscate --split-debug-info=/Flutter/build --target lib/main_$&#123;FLAVOR_NAME&#125;.dart</span><br></pre></td></tr></table></figure></li>
-</ul>
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>jekins</tag>
-      </tags>
   </entry>
   <entry>
     <title>线性伸缩圆角矩形indicator</title>
