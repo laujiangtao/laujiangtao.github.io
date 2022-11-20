@@ -25,7 +25,7 @@ toc: true
 
    在国内下载过程非常慢，我下载了两天，最终失败。所以直接去下载安装包了。
 
-4. 下载安装包 [mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z](mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z "mingw64-x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z")
+4. 下载安装包
 
 5. 解压文件到本地目录并复制`bin`的路径
 
